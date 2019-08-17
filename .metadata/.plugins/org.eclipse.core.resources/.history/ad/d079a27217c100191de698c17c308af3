@@ -1,0 +1,8 @@
+%
+% fridgeContent.pl
+%
+
+content(pizza)
+content(salmon)
+content(caviar)
+content(pasta)

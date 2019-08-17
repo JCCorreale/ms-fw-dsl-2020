@@ -1,0 +1,19 @@
+%
+% fridgeContent.pl
+%
+
+content(pizza)
+content(salmon)
+content(caviar)
+content(pasta)
+
+showFridgeContent :- 
+	output("FRIDGE CONTENT ---------- "),
+	showContents,
+	output("--------------------------").
+		
+showContents:- 
+ 	model( CATEG, NAME, STATE ),
+ 	output( model( CATEG, NAME, STATE ) ),
+	fail.
+showContents.

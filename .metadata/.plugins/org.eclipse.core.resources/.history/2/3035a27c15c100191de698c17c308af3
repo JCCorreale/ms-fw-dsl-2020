@@ -1,0 +1,5 @@
+System smartfridge
+
+mqttBroker "localhost" : 1883    //192.168.1.18  192.168.43.229 
+
+Context ctxFridge     ip [host="localhost" port=8095]  -mqtt
