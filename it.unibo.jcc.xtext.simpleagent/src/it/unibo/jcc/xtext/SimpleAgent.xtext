@@ -1,0 +1,136 @@
+grammar it.unibo.jcc.xtext.SimpleAgent with org.eclipse.xtext.common.Terminals
+
+generate simpleAgent "http://www.unibo.it/jcc/xtext/SimpleAgent"
+
+SimpleAgent: "Agent" name=ID "ip"  ip = ComponentIP ( mqtt = "-mqtt" )?
+	"System" "{" system=QActorSystemSpec "}"
+	behaviors+=BehaviorDeclaration+ // For now assumed only one (internal) Behavior
+;
+
+QActorSystemSpec:	{QActorSystemSpec}
+	( mqttBroker = BrokerSpec)? 
+	( message   += Message   )*
+	( context   += Context   )*
+;
+
+BehaviorDeclaration: Behavior | BehaviorExternal;
+
+/* NAMES */
+
+QualifiedName : ID ('.' ID)* ;
+terminal VARID  :  ('A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
+
+
+// planner must implement itunibo.jcc.planner.framework.Planner
+Behavior: "Behavior" name=ID "planner" planner=QualifiedName "{" 
+	start=AnyAction? 
+	("init" "{" init=ActionBody "}")?
+	actions+=Action*
+	("onGoalReached" "{" onGoalReached=ActionBody "}")?
+	("onSuspended" "{" onSuspended=ActionBody "}")?
+	("onResumed" "{" onResumed=ActionBody "}")?
+"}";
+
+BehaviorExternal: "ExternalBehavior" name=ID "context" context=[Context];
+
+// TODO Semantic check: at most one per action (exactly one?)
+Action: "action" actions+=PHead("," actions+=PHead)* "{" body=ActionBody "}" on+=OnEffect*; // TODO Restrict to certain PHeads
+
+OnEffect: 
+	"onEffect" "(" effect=[Message] ")" "{"
+		body=ActionBody
+	"}"
+	compensations+=Compensation*
+;
+
+Compensation: 
+	type="retry" "when" condition=STRING ("{" body=ActionBody "}")? |
+	type="replan" "when" condition=STRING ("{" body=ActionBody "}")? |
+	type="setGoal" goal=STRING "when" condition=STRING  ("{" body=ActionBody "}")?
+;
+
+ActionBody: {ActionBody} instructions+=GuardedStateAction*;
+
+CodeRunArg: PHead | {CodeRunArg} BuiltinVar; // Changed CodeRunSimple and CodeRunActor below
+
+BuiltinVar: "Curmove" | "CurGoal";
+
+// QActor Syntax
+
+/* BROKER SPEC */
+
+BrokerSpec : "mqttBroker" brokerHost=STRING ":" brokerPort=INT ;
+
+/*
+ * ------------------------------------------
+ * MESSAGE
+* ------------------------------------------
+ */
+Message :     	    OutOnlyMessage | OutInMessage;
+OutOnlyMessage : 	Dispatch |  Event | Signal | Token ; 
+OutInMessage: 		Request  | Invitation ;
+
+Event: 		"Event"      name=ID  ":" msg = PHead  ;
+Signal: 	"Signal"     name=ID  ":" msg = PHead  ;
+Token:		"Token"      name=ID  ":" msg = PHead  ;
+Dispatch: 	"Dispatch"   name=ID  ":" msg = PHead  ;
+Request: 	"Request"    name=ID  ":" msg = PHead  ;
+Invitation:	"Invitation" name=ID  ":" msg = PHead  ;
+
+/* 
+ * Context
+ */
+Context     : "Context" name=ID "ip"  ip = ComponentIP  ( mqtt ?= "-mqtt" )? ;
+ComponentIP : {ComponentIP} "[" "host=" host=STRING "port=" port=INT "]" ; 
+
+/*
+ * StateAction
+ */
+
+GuardedStateAction : ("if" guard = STRING   | ( solveGuard ?= "ifSolved") )? 
+	action=StateAction 
+	("else" elseaction=StateAction )?
+;
+
+StateAction    : 
+	Print | PrintCurMsg | SolveGoal |			//general
+	Forward | Emit | Delay | MsgCond |	    	//qak kotlin
+	CodeRun | AnyAction	| Exec					//extra code
+; 
+
+PrintCurMsg :  {PrintCurMsg} "printCurrentMessage"  ;
+Print       :  {Print} "println" "(" args=PHead ")"    ; 
+SolveGoal   :  {SolveGoal} "solve" "(" goal=PHead ("," resVar=Variable)? ")";
+
+Forward   : "forward" dest=[BehaviorDeclaration] "-m" msgref=[Message] ":" val = PHead	;
+Emit      : "emit" msgref=[Event] ":" val = PHead	;
+Delay     : DelayInt | DelayVar | DelayVref | DelaySol ;
+DelayInt  : "delay" time=INT  ;
+DelayVar  : "delayVar"    refvar     = Variable ;
+DelayVref : "delayVarRef" reftime    = VarRef ;
+DelaySol  : "delaySol"    refsoltime = VarSolRef ;
+MsgCond   :	"onMsg" "(" message=[Message] ":" msg = PHead ")" "{" ( actions += GuardedStateAction )*  "}"
+			 ("else" ifnot = NoMsgCond )? ;
+NoMsgCond :	{NoMsgCond}  "{" (  actions += GuardedStateAction )*  "}"  ;
+AnyAction :  "[" body=STRING "]"; 
+CodeRun   : CodeRunActor | CodeRunSimple  ;// "run" item=QualifiedName "(" (actor ?="myself" ",")? ( args+=PHead ("," args+=PHead)* )? ")" ;
+CodeRunActor   : "run" item=QualifiedName "(" "myself" ( "," args+=CodeRunArg ("," args+=CodeRunArg)* )? ")" ;
+CodeRunSimple  : "run" item=QualifiedName "(" (args+=CodeRunArg ("," args+=CodeRunArg)* )? ")";
+
+Exec      : "machineExec" action=STRING ;
+
+/*
+ * PROLOG like
+ */ 
+PHead :	PAtom | PStruct	| PStructRef;
+PAtom : PAtomString | Variable | PAtomNum | PAtomic | VarRef | VarSolRef | VarRefInStr;
+PAtomString : val = STRING ;
+PAtomic     : val = ID ;
+PAtomNum    : val = INT ;
+PStructRef  : "$" struct = PStruct;  //
+PStruct     : functor=ID "(" (msgArg += PHead)? ("," msgArg += PHead)* ")" ;
+Variable    : {Variable} varName= VARID ;
+//USING vars (from solve or from code)
+VarRef      : "$" varName= VARID ;	//in msg payload  e.g. modelChange(robot,$Curmove) => $Curmove
+VarRefInStr : "#" varName= VARID ;	//in msg payload. e.g. modelChange(robot,#M)       => ${getCurSol("M").toString()}
+VarSolRef   : "@" varName= VARID ;	//in run          e.g. run itunibo....doMove( @M ) => getCurSol("V").toString()

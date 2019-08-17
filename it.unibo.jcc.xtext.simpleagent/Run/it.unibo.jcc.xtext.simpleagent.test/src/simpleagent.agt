@@ -1,0 +1,108 @@
+Agent movingagent ip [host="localhost" port=8038] -mqtt
+
+System {
+	mqttBroker "localhost" : 1883
+    
+	Dispatch modelChange  : modelChange( TARGET, VALUE )
+	Dispatch modelUpdate  : modelUpdate( TARGET, VALUE )
+	
+	// TODO Autogen basing on \"on(...)\" clauses (or declare before use)	
+	Dispatch stepOk        : stepOk(V)		//TODO eliminate  V
+	Dispatch stepFail      : stepFail(R,T) //R=ok | obstacle, T = time
+	
+	Dispatch onestep       : onestep(DURATION)
+	Event  sonarRobot     : sonar( DISTANCE )	     //from  sonar on robot 
+	
+	Context ctxDummyForMind   ip [host="otherresourcelocalhost" port=8035]   -mqtt
+}
+
+ExternalBehavior resourcemodel context ctxDummyForMind
+ExternalBehavior onestepahead context ctxDummyForMind
+
+Behavior move planner itunibo.jcc.^planner.adapter.^MovePlannerAdapter {
+["
+var mapEmpty    = false
+val mapname     =\\\"roomMapWithTable\\\"
+
+var Tback = 0
+
+val Tretry = 1000L
+val Nretry = 5
+
+var replanned = false
+
+var retryCount = 0
+
+//REAL ROBOT
+//var StepTime   = 1000
+//var PauseTime  = 500 
+
+//VIRTUAL ROBOT
+var StepTime   = 330	//for virtual
+var PauseTime  = 500
+
+var PauseTimeL  = PauseTime.toLong()
+"]
+	
+	init {
+		solve( consult("moves.pl") )
+		run itunibo.^planner.plannerUtil.initAI()
+		run itunibo.^planner.moveUtils.loadRoomMap( myself, mapname )
+		run itunibo.^planner.moveUtils.showCurrentRobotState()
+		["val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()"]
+		forward resourcemodel -m modelUpdate : modelUpdate(roomMap,$MapStr)
+	}
+	
+	action w {
+		delayVar PauseTimeL  //Otherwise is too fast, even with remote interaction
+		run itunibo.^planner.moveUtils.attemptTomoveAhead(myself, StepTime)
+	}
+	onEffect(stepOk) {
+		run itunibo.^planner.moveUtils.updateMapAfterAheadOk(myself)	
+	}
+	onEffect(stepFail) {
+		onMsg( stepFail : stepFail(Obs,Time) ) {
+ 			["Tback=payloadArg(1).toString().toInt() / 2"]
+ 			println("stepFailed ${payloadArg(1).toString()}")
+	 		// TODO Put in onMsg and TEST
+	  		//Return in cell
+	  	 	//IMPORTANT: the virtual robot could not work without a back step 	
+	  	 	//NOW INCLUDED in robotDataSource for robotVirtual
+	 		run itunibo.^planner.moveUtils.backToCompensate(myself, Tback, PauseTime)
+ 		}
+	}
+	// Retry Nretry times, then replan. In case of failure after replanning, go home.
+	retry when "retryCount < Nretry" {
+		["retryCount++"]
+	 	delayVar Tretry
+	}
+	replan when "!replanned && (retryCount >= Nretry)" {
+		//["retryCount = 0"]
+		["replanned = true"]
+		// Put the obstacle on the map
+		run itunibo.^planner.moveUtils.setObstacleOnCurrentDirection(myself)
+		run itunibo.^planner.plannerUtil.showMap()  //
+	}
+	setGoal "pos(0,0)" when "replanned"/* { // Obstacle should already be on map
+		// Put the obstacle on the map
+		run itunibo.^planner.moveUtils.setObstacleOnCurrentDirection(myself)
+		run itunibo.^planner.plannerUtil.showMap()  //
+	}*/
+	
+	action a, d {
+		// Built-in Curmove
+		run itunibo.^planner.moveUtils.rotate(myself, Curmove, PauseTime)
+	}
+	
+	onGoalReached {
+		run itunibo.^planner.moveUtils.showCurrentRobotState()
+	 	["	val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()  "]
+	 	forward resourcemodel -m modelUpdate : modelUpdate(roomMap,$MapStr)
+	}
+
+	onSuspended {
+		// Send stop command
+		forward resourcemodel -m modelChange : modelChange(robot,h)
+		println("suspended")
+	}
+}

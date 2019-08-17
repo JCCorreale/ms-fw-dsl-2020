@@ -1,0 +1,58 @@
+Agent carrieragent ip [host="localhost" port=8042] -mqtt
+
+System {
+	mqttBroker "localhost" : 1883
+	
+    Context ctxDummy   ip [host="otherresourcelocalhost" port=8035]   -mqtt
+}
+
+ExternalBehavior gotobehavior context ctxDummy // TODO Behaviors as actors (check name consistency between internal/external)
+
+Behavior carrier planner itunibo.jcc.^planner.adapter.^CarrierPlannerAdapter {
+	
+	init {
+		// TODO Update from prolog file
+		["planner.update(\"butler\", \"home\")"]
+		["planner.update(\"food\", \"fridge\")"]
+		["planner.update(\"dishes\", \"pantry\")"]
+	}
+	
+	action take(Item) {
+		println("carrier taking ${payloadArg(0)}")
+		["planner.update(\"${payloadArg(0)}\", \"butler\")"]
+	}
+	
+	action put(Item,Location) {
+		println("carrier putting ${payloadArg(0)} in ${payloadArg(1)}")
+		["planner.update(\"${payloadArg(0)}\", \"${payloadArg(1)}\")"]
+	}
+	
+	action goto(L) {
+		forward gotobehavior -m ^setGoal : ^setGoal(goto($payloadArg(0)))
+		["planner.update(\"butler\", \"${payloadArg(0)}\")"]
+	}
+	// TODO Currently done "by hand", automatize
+	onEffect(suspend) {
+		forward gotobehavior -m suspend : suspend
+	}
+	retry when "true" // TODO Syntax with no condition
+	onEffect(resume) {
+		forward gotobehavior -m resume : resume
+	}
+	retry when "true" // TODO Syntax with no condition
+	onEffect(goalReached) { // TODO Workaround
+		println("carrier: subgoal reached")
+	}
+	
+	onGoalReached {
+		println("gotobehavior: onGoalReached")
+	}
+	
+//	onSuspended {
+//		forward movebehavior -m suspend : suspend
+//	}
+	
+//	onResumed {
+//		forward movebehavior -m resume : resume
+//	}
+}

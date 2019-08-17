@@ -1,0 +1,219 @@
+System gotoagentsystem
+mqttBroker "localhost" : 1883
+// Commands for the worker
+Dispatch setGoal	   : setGoal(G)
+Dispatch suspend	   : suspend
+Dispatch resume        : resume
+// Events from the worker
+Event goalReached      : goalReached
+// User-defined messages
+// Action messages
+Dispatch goto 	   : goto(L) // TODO Better handling of multiple actions!
+// Infrastructure messages
+Dispatch retry 		: retry
+Dispatch replan 	: replan
+Dispatch setGoal 	: setGoal
+Context ctxGotoagent ip [host="localhost" port=8040] -mqtt
+Context ctxDummy ip [host="otherresourcelocalhost" port=8035] -mqtt
+ExternalQActor movebehavior context ctxDummy
+QActor gotobehavior context ctxGotoagent {
+["
+
+var Curmove     = \"\" 
+var suspended = false
+
+var CurGoal = \"\"
+
+//var CurGoalX = \"\"
+//var CurGoalY = \"\"
+
+
+// From Planner declaration
+val planner = itunibo.jcc.planner.adapter.GotoPlannerAdapter()
+"]
+	State s0 initial {
+		solve( consult("locations.pl") ) ["planner.update(\"home\")"]
+		//solve( consult("moves.pl") )
+		//run itunibo.planner.plannerUtil.initAI()
+		//run itunibo.planner.moveUtils.loadRoomMap( myself, mapname )
+		//run itunibo.planner.moveUtils.showCurrentRobotState()
+		//["val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()"]
+		//forward resourcemodel -m modelUpdate : modelUpdate(roomMap,$MapStr)
+	}
+ 	Goto waitGoal
+ 	
+ 	State waitGoal {
+ 		println("Waiting for goal...")	
+ 	}
+ 	Transition setGoalT whenMsg setGoal -> setGoal
+	 
+	State setGoal {
+		println("here in setGoal")
+		printCurrentMessage
+		onMsg( setGoal : setGoal(G) ) {
+			println("Received setGoal")
+			["planner.planGoal(myself, payloadArg(0))"]
+			//run itunibo.planner.plannerUtil.setGoal(payloadArg(0), payloadArg(1))
+  			//run itunibo.planner.moveUtils.doPlan( myself )
+  			// To allow replanning
+  			["CurGoal = payloadArg(0)"]
+  			//["CurGoalX = payloadArg(0)"]
+  			//["CurGoalY = payloadArg(1)"]
+ 			//solve( dialog(F) )
+		}
+		
+		// TODO What if no plan can be calculated?
+   	}
+   	Goto suspendOrExecute
+	//Goto executePlannedActions //doGoHomeActions 
+	
+	State suspendOrExecute {}
+		Transition checkSuspend 
+	   		whenTime 200 -> executePlannedActions
+	   		whenMsg suspend -> suspended	
+	
+	State suspended {
+		// Send stop command
+		//forward resourcemodel -m modelChange : modelChange(robot,h)
+		//println("suspended")		
+	}
+	Transition resume whenMsg resume -> resume // suspendOrExecute ?
+	
+	State resume {
+	}
+	Goto executePlannedActions
+	
+	State executePlannedActions{
+		//solve( showMoves ) 
+		// retract only after it's executed
+		solve( move(M) )
+		//solve( retract( move(M) ) )
+		ifSolved {  
+			["Curmove = getCurSol(\"M\").toString()"]
+		}
+		else { ["Curmove = \"\""] } 
+		println("executePlannedActions doing $Curmove")
+ 	}
+   
+	Goto checkAndDoAction if "(Curmove.length>0) " else goalOk 
+
+ 	State goalOk{
+ 		//run itunibo.planner.moveUtils.showCurrentRobotState()
+	 	//["	val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()  "]
+	 	//forward resourcemodel -m modelUpdate : modelUpdate(roomMap,$MapStr)
+	 	
+	 	emit goalReached : goalReached
+ 	}
+ 	Goto waitGoal
+ 	
+	State checkAndDoAction{
+		solve( assert( curmove($Curmove) ) )
+		//["when (Curmove) {"]
+		// TODO Assuming only one solves
+		//["	\"goto\" -> "]
+		solve( curmove( goto(L) ) )
+		ifSolved {
+			forward gotobehavior -m goto : $Curmove
+		} // TODO else?
+		solve( retract( curmove($Curmove) ) )
+		//["}"]
+	}
+	Transition t0 
+		whenMsg goto -> goto // TODO Better handling of multiple actions!
+	 	
+	State goto {
+		onMsg(goto : goto(L)) { // TODO Better handling of multiple actions!
+			// from "agent" code
+			println("gotobehavior: ${payloadArg(0)}") println("location( ${payloadArg(0)}, Pos )") solve( location( $payloadArg(0), Pos ) ) println("after solve ${getCurSol(\"Pos\")}") forward movebehavior -m setGoal : setGoal(#Pos)
+		}
+	}
+	Transition t0
+		// from "on(...)" clauses on action w
+		whenMsg suspend	-> goto_onSuspend
+		whenMsg resume	-> goto_onResume
+		whenMsg goalReached	-> goto_onGoalReached
+	
+	
+	 	
+	State goto_onSuspend{ // TODO HANDLE MESSAGE NAMES BETTER!!!
+		// from "agent" code
+		forward movebehavior -m suspend : suspend
+		// TODO Check consistency with QActor guarded transitions policy
+		["if (true) {"]
+			forward gotobehavior -m retry : retry
+		["}"]
+	}
+	Transition compensation
+		whenMsg retry  -> goto_retry // TODO Handles only one compensation per ACTION (on a single Effect)!!!
+	State goto_onResume{ // TODO HANDLE MESSAGE NAMES BETTER!!!
+		// from "agent" code
+		forward movebehavior -m resume : resume
+		// TODO Check consistency with QActor guarded transitions policy
+		["if (true) {"]
+			forward gotobehavior -m retry : retry
+		["}"]
+	}
+	Transition compensation
+		whenMsg retry  -> goto_retry // TODO Handles only one compensation per ACTION (on a single Effect)!!!
+	State goto_onGoalReached{ // TODO HANDLE MESSAGE NAMES BETTER!!!
+		// from "agent" code
+		println("gotobehavior: subgoal reached")
+		// TODO Check consistency with QActor guarded transitions policy
+		["planner.update(\"${payloadArg(0)}\")"]
+	}
+	Goto finalizeMove
+	
+	
+	State goto_retry { // TODO Currently only one compensation per type allowed (specify in grammar?)
+	}
+	Goto suspendOrExecute
+	
+	State goto_retry { // TODO Currently only one compensation per type allowed (specify in grammar?)
+	}
+	Goto suspendOrExecute
+	
+	 	
+	State finalizeMove {
+		// Move actually succeded
+		//["retryCount = 0"]
+		solve( retract( move(M) ) )
+	}
+	Goto suspendOrExecute
+	
+	/*
+	
+	State retry { // TODO Really needed?
+			
+		//println("retry ${Curmove} in ${Tretry} ms")
+		//["retryCount++"]
+		
+//		println("MOVES BEFORE REASSERT")
+//		solve( showMoves ) 
+//		println("END MOVES BEFORE REASSERT")
+
+//		// reassert current move
+//		solve( assert( move($Curmove) ) )
+//		// 
+//		println("MOVES AFTER REASSERT")
+//		solve( showMoves ) 
+//		println("END MOVES AFTER REASSERT")
+	}
+	//Transition t0 whenTimeVar Tretry -> suspendOrExecute
+	Goto suspendOrExecute
+	
+	State replan {
+		
+		println("replanning")
+		
+		//["retryCount = 0"]
+		// Puts the obstacle on the map
+		//run itunibo.planner.moveUtils.setObstacleOnCurrentDirection(myself)
+		//run itunibo.planner.plannerUtil.showMap()  //
+		// Clear previous plan
+		solve( retractall( move(M) ) )
+		forward gotobehavior -m setGoal : setGoal($CurGoal)
+	}
+	Transition t0 whenMsg setGoal -> setGoal
+	
+	*/
+}

@@ -1,0 +1,58 @@
+Agent gotoagent ip [host="localhost" port=8040] -mqtt
+
+System {
+	mqttBroker "localhost" : 1883
+	
+    Context ctxDummy   ip [host="otherresourcelocalhost" port=8035]   -mqtt
+}
+
+ExternalBehavior movebehavior context ctxDummy // TODO Behaviors as actors (check name consistency between internal/external)
+
+Behavior goto planner itunibo.jcc.^planner.adapter.^GotoPlannerAdapter {
+	
+	init {
+		/* location(table, pos(x,y)) */
+		solve( consult("locations.pl") ) 
+		["planner.update(\"home\")"]
+	}
+	
+	action goto(L) {
+		
+		println("gotobehavior: ${payloadArg(0)}")
+		println("location( ${payloadArg(0)}, Pos )")
+		solve( location( $payloadArg(0), Pos ) )
+		println("after solve ${getCurSol(\"Pos\")}") 
+//		["forward(\"setGoal\", \"setGoal(${getCurSol(\"Pos\")})\" ,\"movebehavior\" )"] // TODO Workaround forward?
+		
+		forward movebehavior -m ^setGoal : ^setGoal(#Pos)
+		
+//		println("gotobehavior: ${payloadArg(0)}")
+//		solve( location( payloadArg(0), Position ) )
+//		// TODO Integrate setGoal with syntaxù
+//		["forward(\"setGoal\", \"setGoal(${payloadArg(0)})\" ,\"movebehavior\" )"] 
+	}
+	// TODO Currently done "by hand", automatize
+	onEffect(suspend) {
+		forward movebehavior -m suspend : suspend
+	}
+	retry when "true" // TODO Syntax with no condition
+	onEffect(resume) {
+		forward movebehavior -m resume : resume
+	}
+	retry when "true" // TODO Syntax with no condition
+	onEffect(goalReached) { // TODO Workaround
+		println("gotobehavior: subgoal reached")
+	}
+	
+	onGoalReached {
+		println("gotobehavior: onGoalReached")
+	}
+	
+//	onSuspended {
+//		forward movebehavior -m suspend : suspend
+//	}
+	
+//	onResumed {
+//		forward movebehavior -m resume : resume
+//	}
+}

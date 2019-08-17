@@ -1,0 +1,26 @@
+INDEX VERSION 1.131+C:\Users\Stefano\eclipse-workspace\iss2019\sprint\sprint3\.metadata\.plugins\org.eclipse.jdt.core
+1731690716.index
+2328269416.index
+1848265734.index
+3528074325.index
+1854761208.index
+1938169732.index
+3060250074.index
+3831089128.index
+2167393394.index
+1780911448.index
+4256880375.index
+3132780378.index
+1494320730.index
+4156863710.index
+597321563.index
+3724612486.index
+3490576773.index
+748459020.index
+519581141.index
+424423019.index
+3534903898.index
+3078805.index
+3590859461.index
+316299900.index
+423100492.index
