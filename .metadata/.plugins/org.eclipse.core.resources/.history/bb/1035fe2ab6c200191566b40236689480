@@ -1,0 +1,12 @@
+package itunibo.jcc.coap.fridge.test
+
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.GlobalScope
+
+fun main() = runBlocking {
+	
+	GlobalScope.launch {
+	    println(" %%%%%%% MainTestFridge starting ctxCarrieragent")
+		it.unibo.ctxFridge.main()
+	}
+}

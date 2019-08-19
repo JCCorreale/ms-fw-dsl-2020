@@ -2,7 +2,8 @@ System smartfridge
 
 mqttBroker "localhost" : 1883    //192.168.1.18  192.168.43.229 
 
-Dispatch take : take(FOOD)
+Dispatch take : take(Food)
+Dispatch put : put(Food)
 
 Context ctxFridge     ip [host="localhost" port=8095]  -mqtt
 
@@ -18,12 +19,28 @@ QActor resourcemodel context ctxFridge{
 	 
 	State waitModelChange{ }
 	Transition t0 whenMsg take -> updateModel
+			 	  whenMsg put -> updateModel
 //	              whenMsg modelUpdate -> updateModel
 
 	State updateModel{  
 		printCurrentMessage
-		onMsg( take : take(FOOD) ) {
-			solve( retract( content(food) ) )
+		onMsg( take : take(Food) ) {
+			solve( retract( content( $payloadArg(0) ) ) )
+			ifSolved {
+				run itunibo.jcc.coap.fridge.fridgeResourceCoap.resourceCoap.updateState()
+			}
+			else {
+				println("*** Can't take non-existing content! ***")
+			}
+			// TODO Update COAP resource
+			//run itunibo.robot.resourceModelSupport.updateRobotModel( myself, payloadArg(1) )
+		}
+		onMsg( put : put(Food) ) {
+			solve( assert( content( $payloadArg(0) ) ) )
+			// Always solved
+			ifSolved {
+				run itunibo.jcc.coap.fridge.fridgeResourceCoap.resourceCoap.updateState()
+			}
 			// TODO Update COAP resource
 			//run itunibo.robot.resourceModelSupport.updateRobotModel( myself, payloadArg(1) )
 		}

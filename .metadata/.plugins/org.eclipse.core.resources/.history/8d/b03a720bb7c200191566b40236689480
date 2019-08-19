@@ -1,0 +1,35 @@
+package itunibo.jcc.coap.fridge.test
+
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import it.unibo.kactor.ActorBasic
+import it.unibo.kactor.sysUtil
+import it.unibo.kactor.MsgUtil
+
+fun main() = runBlocking {
+	
+	var fridgeResourceModel : ActorBasic?
+	
+	GlobalScope.launch {
+	    println(" %%%%%%% MainTestFridge starting ctxFridge")
+		it.unibo.ctxFridge.main()
+		
+	}
+	
+	GlobalScope.launch {
+	    println(" %%%%%%% MainTestFridge starting fridgeObserverCoapClient")
+		it.unibo.jcc.coap.fridge.client.fridgeObserverCoapClient.create( "${it.unibo.jcc.coap.fridge.client.fridgeObserverCoapClient.fridgeResourceAddr}" )
+	}
+	
+	delay(10000)
+	
+	fridgeResourceModel = sysUtil.getActor("resourcemodel")
+	
+	MsgUtil.sendMsg("put","put(sausage)",fridgeResourceModel!!)
+	
+	
+	
+	delay(60 * 1000)
+}

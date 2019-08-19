@@ -13,7 +13,7 @@ class fridgeResourceCoap (name : String ) : CoapResource(name) {
 	
 	companion object {
 		lateinit var actor : ActorBasic
-		var curmodelval = "unknown"
+//		var curmodelval = "unknown"
 		lateinit var resourceCoap : fridgeResourceCoap
 		
 		fun create( a: ActorBasic, name: String  ){
@@ -38,10 +38,10 @@ class fridgeResourceCoap (name : String ) : CoapResource(name) {
 		//getAttributes().setObservable();	// mark observable in the Link-Format			
 	}
 	
-	fun updateState( modelitem : String ){
+	fun updateState() {
 // 		actor.solve("model( actuator, robot, state(STATE) )")
 //		curmodelval = actor.getCurSol("STATE").toString()
-		curmodelval = modelitem
+//		curmodelval = modelitem
 		//println("%%%%%%%%%%%%%%%% updateState from $curState to $curmodelval" )
 		changed()	// notify all CoAp observers		
         	/*
@@ -64,17 +64,18 @@ class fridgeResourceCoap (name : String ) : CoapResource(name) {
         if (uriPath!!.size > 1) {
 			checkContentExists(uriPath.last(), exchange)
         } else {
-            listAllContents(exchange)
+//            listAllContents(exchange)
+			exchange!!.respond(ResponseCode.CONTENT, listAllContents(), MediaTypeRegistry.TEXT_PLAIN)
         }
 		
  		//println("%%%%%%%%%%%%%%%% handleGET  curmodelval=$curmodelval  "  )			
 //		exchange!!.respond(ResponseCode.CONTENT, curmodelval, MediaTypeRegistry.TEXT_PLAIN)
 	}
 	
-	fun listAllContents(exchange: CoapExchange?) {
+	fun listAllContents(): String {
 		actor.solve("findall( Food, content( Food ), Contents )")
-		val contents = actor.getCurSol("Contents").toString()
-		exchange!!.respond(ResponseCode.CONTENT, contents, MediaTypeRegistry.TEXT_PLAIN)
+		return actor.getCurSol("Contents").toString()
+//		exchange!!.respond(ResponseCode.CONTENT, contents, MediaTypeRegistry.TEXT_PLAIN)
 	}
 	
 	fun checkContentExists(content: String, exchange: CoapExchange?) {

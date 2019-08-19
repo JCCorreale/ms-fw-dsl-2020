@@ -1,0 +1,76 @@
+System smartfridge
+
+mqttBroker "localhost" : 1883    //192.168.1.18  192.168.43.229 
+
+Dispatch take : take(Food)
+Dispatch put : take(Food)
+
+Context ctxFridge     ip [host="localhost" port=8095]  -mqtt
+
+QActor resourcemodel context ctxFridge{
+	
+	State s0 initial {		  
+		solve( consult("fridgeContent.pl")	 )
+		solve( showFridgeContent )
+		// Create COAP resource
+		run itunibo.jcc.coap.fridge.fridgeResourceCoap.create( myself, "fridgeresource" ) //CoAP access
+	} 
+	Goto waitModelChange
+	 
+	State waitModelChange{ }
+	Transition t0 whenMsg take -> updateModel
+			 	  whenMsg put -> updateModel
+//	              whenMsg modelUpdate -> updateModel
+
+	State updateModel{  
+		printCurrentMessage
+		onMsg( take : take(Food) ) {
+			solve( retract( content( payloadArg(0) ) ) )
+			ifSolved {
+				run itunibo.jcc.coap.fridge.fridgeResourceCoap.resourceCoap.updateState()
+			}
+			// TODO Update COAP resource
+			//run itunibo.robot.resourceModelSupport.updateRobotModel( myself, payloadArg(1) )
+		}
+		onMsg( put : put(Food) ) {
+			solve( assert( content( payloadArg(0) ) ) )
+			// Always solved
+			ifSolved {
+				run itunibo.jcc.coap.fridge.fridgeResourceCoap.resourceCoap.updateState()
+			}
+			// TODO Update COAP resource
+			//run itunibo.robot.resourceModelSupport.updateRobotModel( myself, payloadArg(1) )
+		}
+	}
+    Goto  waitModelChange
+
+//
+//	State updateModel{  
+//		printCurrentMessage
+//		onMsg( modelUpdate : modelUpdate(robot,V ) ) {
+//			run itunibo.robot.resourceModelSupport.updateRobotModel( myself, payloadArg(1) )
+//		}
+//		onMsg( modelUpdate : modelUpdate(sonarRobot,V ) ) {
+//			run itunibo.robot.resourceModelSupport.updateSonarRobotModel( myself, payloadArg(1) )
+//		}
+//		onMsg( modelUpdate : modelUpdate(roomMap,V ) ) {  //JULY19
+//			println("modelUpdate roomMap  ")
+//			run itunibo.robot.resourceModelSupport.updateRoomMapModel( myself, payloadArg(1) )
+//		}
+//	} 
+//    Goto  waitModelChange
+//    
+//	State changeModel{  
+//		//printCurrentMessage 
+//		//ROBOT MOVE
+//		onMsg( modelChange : modelChange( robot,V ) ) { // V= w | ...
+//			run itunibo.robot.resourceModelSupport.updateRobotModel( myself, payloadArg(1) )
+//			emit local_modelChanged : modelChanged(  robot,  $payloadArg(1))  //for the robotmind
+//		} 
+//		//SONAR DATA  
+////		onMsg( modelChange : modelChange( sonarRobot,V ) ) { // V= w | ...
+////			run itunibo.robot.resourceModelSupport.updateSonarRobotModel( myself, payloadArg(1) )
+////		}
+//	}  
+//	Goto  waitModelChange
+}

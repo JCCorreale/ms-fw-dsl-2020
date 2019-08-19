@@ -1,0 +1,6 @@
+package itunibo.jcc.coap.fridge.test
+
+fun main() = runBlocking {
+	
+	
+}

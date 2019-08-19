@@ -28,13 +28,25 @@ class Resourcemodel ( name: String, scope: CoroutineScope ) : ActorBasicFsm( nam
 					action { //it:State
 					}
 					 transition(edgeName="t00",targetState="updateModel",cond=whenDispatch("take"))
+					transition(edgeName="t01",targetState="updateModel",cond=whenDispatch("put"))
 				}	 
 				state("updateModel") { //this:State
 					action { //it:State
 						println("$name in ${currentState.stateName} | $currentMsg")
-						if( checkMsgContent( Term.createTerm("take(FOOD)"), Term.createTerm("take(FOOD)"), 
+						if( checkMsgContent( Term.createTerm("take(Food)"), Term.createTerm("take(Food)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								solve("retract(content(food))","") //set resVar	
+								solve("retract(content(${payloadArg(0)}))","") //set resVar	
+								if(currentSolution.isSuccess()) { itunibo.jcc.coap.fridge.fridgeResourceCoap.resourceCoap.updateState(  )
+								 }
+								else
+								{ println("*** Can't take non-existing content! ***")
+								 }
+						}
+						if( checkMsgContent( Term.createTerm("put(Food)"), Term.createTerm("put(Food)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								solve("assert(content(${payloadArg(0)}))","") //set resVar	
+								if(currentSolution.isSuccess()) { itunibo.jcc.coap.fridge.fridgeResourceCoap.resourceCoap.updateState(  )
+								 }
 						}
 					}
 					 transition( edgeName="goto",targetState="waitModelChange", cond=doswitch() )
