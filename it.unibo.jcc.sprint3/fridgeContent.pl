@@ -9,6 +9,10 @@ content(caviar).
 content(pasta).
 content(pasta).
 
+count(P,Count) :-
+        findall(1,P,L),
+        length(L,Count).
+
 showFridgeContent :- 
 	output("FRIDGE CONTENT ---------- "),
 	showContents,

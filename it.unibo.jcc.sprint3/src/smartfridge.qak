@@ -11,8 +11,8 @@ QActor resourcemodel context ctxFridge{
 	State s0 initial {		  
 		solve( consult("fridgeContent.pl")	 )
 		solve( showFridgeContent )
-		// TODO Create COAP resource
-//		run itunibo.coap.modelResourceCoap.create( myself, "resourcemodel" ) //CoAP access
+		// Create COAP resource
+		run itunibo.jcc.coap.fridge.fridgeResourceCoap.create( myself, "fridgeresource" ) //CoAP access
 	} 
 	Goto waitModelChange
 	 
@@ -27,7 +27,7 @@ QActor resourcemodel context ctxFridge{
 			// TODO Update COAP resource
 			//run itunibo.robot.resourceModelSupport.updateRobotModel( myself, payloadArg(1) )
 		}
-	} 
+	}
     Goto  waitModelChange
 
 //
