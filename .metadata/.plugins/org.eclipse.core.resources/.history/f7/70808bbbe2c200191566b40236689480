@@ -1,0 +1,7 @@
+Ogni risorsa è rappresentata da un attore e risponde a messaggi take/put (da parte del Butler).
+Nel caso di risorse "fittizie" gli attori sono nello stesso contesto del Butler (di fatto nello stesso file QAK?)
+Gli attori corrispondenti alle risorse "fittizie" aggiornano il resource model del Butler (che è un attore separato
+dal butler, mentre quello del frigo è quello che va ad aggiornare la corrispondente risorsa coap (processo e contesto
+completamente separato dal Butler). Introdurre un attore intermedio tra butler e fridge o limitarsi ad avere "per caso"
+interfaccia corrispondente take/put? (Requisito: pantry and dishwasher AT THE MOMENT non-smart resources).
+
