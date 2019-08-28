@@ -20,8 +20,7 @@ class Roomstate ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, s
 					action { //it:State
 						solve("consult('roomState.pl')","") //set resVar	
 						solve("showContent","") //set resVar	
-						delay(2000) 
-						forward("put", "put(sausage)" ,"resourcemodel" ) 
+						itunibo.jcc.coap.roomstate.roomModelFridgeObserver.create(myself)
 					}
 					 transition( edgeName="goto",targetState="waitModelChange", cond=doswitch() )
 				}	 
@@ -36,18 +35,26 @@ class Roomstate ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, s
 						println("$name in ${currentState.stateName} | $currentMsg")
 						if( checkMsgContent( Term.createTerm("take(Item,Location)"), Term.createTerm("take(Item,Location)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								solve("retract(at(${payloadArg(0)},${payloadArg(1)}))","") //set resVar	
-								if(currentSolution.isSuccess()) { solve("showContent","") //set resVar	
+								if(payloadArg(1) == "fridge"){ forward("take", "take(${payloadArg(0)})" ,"resourcemodel" ) 
 								 }
 								else
-								{ println("*** Can't take non-existing content! ***")
-								 }
+								 { solve("retract(at(${payloadArg(0)},${payloadArg(1)}))","") //set resVar	
+								 if(currentSolution.isSuccess()) {  }
+								 else
+								 { println("*** Can't take non-existing content! ***")
+								  }
+								  }
+								solve("showContent","") //set resVar	
 						}
 						if( checkMsgContent( Term.createTerm("put(Item,Location)"), Term.createTerm("put(Item,Location)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								solve("assert(at(${payloadArg(0)},${payloadArg(1)}))","") //set resVar	
-								if(currentSolution.isSuccess()) { solve("showContent","") //set resVar	
+								if(payloadArg(1) == "fridge"){ forward("put", "put(${payloadArg(0)})" ,"resourcemodel" ) 
 								 }
+								else
+								 { solve("assert(at(${payloadArg(0)},${payloadArg(1)}))","") //set resVar	
+								 if(currentSolution.isSuccess()) {  }
+								  }
+								solve("showContent","") //set resVar	
 						}
 					}
 					 transition( edgeName="goto",targetState="waitModelChange", cond=doswitch() )

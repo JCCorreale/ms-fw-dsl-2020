@@ -27,12 +27,22 @@ fun main() = runBlocking {
 	
 	delay(5000)
 	
-	roomState = sysUtil.getActor("resourcemodel")
+	roomState = sysUtil.getActor("roomstate")
 	
 	// Put content
-//	MsgUtil.sendMsg("put","put(sausage, fridge)", roomState!!)
+	MsgUtil.sendMsg("put","put(sausage, fridge)", roomState!!)
 	
-//	delay(3000)
+	delay(3000)
+	
+	// Put content
+	MsgUtil.sendMsg("put","take(sausage, fridge)", roomState!!)
+	
+	delay(3000)
+	
+	// Put content
+	MsgUtil.sendMsg("put","put(sausage, fridge)", roomState!!)
+	
+	delay(3000)
 	
 	delay(60 * 1000)
 }

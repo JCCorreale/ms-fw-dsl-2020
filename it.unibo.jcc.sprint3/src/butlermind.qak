@@ -6,21 +6,19 @@ Dispatch take : take(Item, Location)
 Dispatch put : put(Item, Location)
 
 Context ctxButlermind     ip [host="localhost" port=8105]  -mqtt
-Context ctxFridge     ip [host="localhost" port=8095]  -mqtt
+Context ctxDummyForFridge     ip [host="localhost" port=8095]  -mqtt
 
-ExternalQActor resourcemodel context ctxFridge // FRIDGE resource model!
+ExternalQActor resourcemodel context ctxDummyForFridge // FRIDGE resource model!
 
 QActor roomstate context ctxButlermind {
 	
 	State s0 initial {		  
 		solve( consult("roomState.pl") )
 		solve( showContent )
+		// Register to fridge COAP resource
+		run itunibo.jcc.coap.roomstate.roomModelFridgeObserver.create(myself)
 		// Create COAP resource
 //		run itunibo.jcc.coap.fridge.fridgeResourceCoap.create( myself, "fridgeresource" ) //CoAP access
-				
-		// Test
-		delay 2000
-		forward resourcemodel -m put : put(sausage)
 	}
 	Goto waitModelChange
 	 
@@ -33,26 +31,38 @@ QActor roomstate context ctxButlermind {
 		printCurrentMessage
 		// TODO
 		onMsg( take : take(Item, Location) ) {
-			solve( retract( at( $payloadArg(0), $payloadArg(1) ) ) )
-			ifSolved {
-//				run itunibo.jcc.coap.fridge.fridgeResourceCoap.resourceCoap.updateState()
-				solve( showContent )
+			if "payloadArg(1) == \"fridge\""  { 			
+				// TODO Update via COAP
+				forward resourcemodel -m take : take($payloadArg(0))
 			}
 			else {
-				println("*** Can't take non-existing content! ***")
+				solve( retract( at( $payloadArg(0), $payloadArg(1) ) ) )
+				ifSolved {
+	//				run itunibo.jcc.coap.fridge.fridgeResourceCoap.resourceCoap.updateState()
+				}
+				else {
+					println("*** Can't take non-existing content! ***")
+				}
+				// TODO Update COAP resource
+				//run itunibo.robot.resourceModelSupport.updateRobotModel( myself, payloadArg(1) )
 			}
-			// TODO Update COAP resource
-			//run itunibo.robot.resourceModelSupport.updateRobotModel( myself, payloadArg(1) )
+			solve( showContent )
 		}
 		onMsg( put : put(Item, Location) ) {
-			solve( assert( at( $payloadArg(0), $payloadArg(1) ) ) )
-			// Always solved
-			ifSolved {
-//				run itunibo.jcc.coap.fridge.fridgeResourceCoap.resourceCoap.updateState()
-				solve( showContent )
+			if "payloadArg(1) == \"fridge\""  { 				
+				// TODO Update via COAP
+				forward resourcemodel -m put : put($payloadArg(0))
 			}
-			// TODO Update COAP resource
-			//run itunibo.robot.resourceModelSupport.updateRobotModel( myself, payloadArg(1) )
+			else {
+				solve( assert( at( $payloadArg(0), $payloadArg(1) ) ) )
+				// Always solved
+				ifSolved {
+	//				run itunibo.jcc.coap.fridge.fridgeResourceCoap.resourceCoap.updateState()
+				}
+				// TODO Update COAP resource
+				//run itunibo.robot.resourceModelSupport.updateRobotModel( myself, payloadArg(1) )	
+			}
+			solve( showContent )
 		}
 	}
     Goto  waitModelChange
