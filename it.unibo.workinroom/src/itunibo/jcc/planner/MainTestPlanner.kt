@@ -16,14 +16,14 @@ fun main() = runBlocking {
 	val initialState = SystemState(mapOf<Location, List<Item>>(
 //		Location["home"]  to listOf(Item["butler"]),
 //		Location["table"]  to listOf(Item["butler"]),
-		Location["fridge"] to listOf(Item["pizza"], Item["caviar"]),
-		Location["pantry"] to listOf(Item["dishes"])
-	), emptyList(), Location["home"])
+//		Location["fridge"] to listOf(Item["pizza"], Item["caviar"]),
+//		Location["pantry"] to listOf(Item["dishes"])
+	), emptyList(), Location["table"])
 	
 	val goalState =  SystemState(mapOf<Location, List<Item>>(
 //		BUTLER to TABLE, // If an equality check is used, needs to know also the state of the butler (frame problem...)
 //		Location["home"]  to listOf(Item["butler"]),
-		Location["table"] to listOf(Item["dishes"], Item["pizza"]/*, Item["caviar"]*/)
+//		Location["table"] to listOf(Item["dishes"], Item["pizza"]/*, Item["caviar"]*/)
 //		FOOD to TABLE,
 //		DISHES to TABLE
 //		DISHES to DISHWASHER

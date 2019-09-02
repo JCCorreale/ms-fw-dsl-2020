@@ -47,13 +47,11 @@ class CarrierPlannerAdapter : Planner {
 		val itemStr = matches!!.groups[1]!!.value
 		val locationStr = matches!!.groups[2]!!.value
 		
-		val item = Item[itemStr]
-		val location = Location[locationStr]
+		// TODO Multiple items? Butler as special case...
+		val goalState = if (itemStr != "butler") SystemState().withLocationItems { it.put(Location[locationStr], mutableListOf(Item[itemStr])) }
+						else SystemState().withButlerLocation { Location[locationStr] }
 		
-		println("CarrierPlannerAdapter | planGoal | item=$item location=$location")
-		
-		// TODO Multiple items?!
-		val goalState =  SystemState().withLocationItems { it.put(location, mutableListOf(item)) }
+		println("CarrierPlannerAdapter | planGoal | item=${Item[itemStr]} location=${Location[locationStr]}")
 		
 		val problem = Problem(
 			state,
