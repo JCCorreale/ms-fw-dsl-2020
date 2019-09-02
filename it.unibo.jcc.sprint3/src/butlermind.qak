@@ -2,13 +2,24 @@ System butlermind
 
 mqttBroker "localhost" : 1883    //192.168.1.18  192.168.43.229 
 
+// From the maitre
+Dispatch prepare : prepare
+
+// From/to carrierbehavior
+Dispatch setGoal : setGoal(G)
+Dispatch goalReached : goalReached
+
+// To roomstate
 Dispatch take : take(Item, Location)
 Dispatch put : put(Item, Location)
 
 Context ctxButlermind     ip [host="localhost" port=8105]  -mqtt
 Context ctxDummyForFridge     ip [host="localhost" port=8095]  -mqtt
+Context ctxDummyForCarrier     ip [host="localhost" port=8042]  -mqtt
 
 ExternalQActor resourcemodel context ctxDummyForFridge // FRIDGE resource model!
+
+ExternalQActor carrierbehavior context ctxDummyForCarrier
 
 QActor roomstate context ctxButlermind {
 	
@@ -109,5 +120,24 @@ QActor butlermind context ctxButlermind {
 //		run itunibo.jcc.coap.roomstate.roomModelFridgeObserver.create(myself)
 //		// Create COAP resource
 ////		run itunibo.jcc.coap.fridge.fridgeResourceCoap.create( myself, "fridgeresource" ) //CoAP access
+	}
+	Goto waitCommand
+	 
+	State waitCommand{ }
+	Transition t0 whenMsg prepare -> doPrepare
+	
+	// TODO PLANNER MUST HAVE SAME STATE REPRESENTATION!!!
+
+	State doPrepare{
+		
+		// TODO Execute at(Item,Location) goals from prolog file
+		
+		forward carrierbehavior -m setGoal : setGoal( at(pizza, table) )
+	}
+	Transition t0 whenEvent goalReached -> afterPrepare
+	
+	State afterPrepare{
+		// TODO
+		println("After prepare!!!")
 	}
 }

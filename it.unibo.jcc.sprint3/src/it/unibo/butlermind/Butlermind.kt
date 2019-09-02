@@ -19,6 +19,23 @@ class Butlermind ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, 
 				state("s0") { //this:State
 					action { //it:State
 					}
+					 transition( edgeName="goto",targetState="waitCommand", cond=doswitch() )
+				}	 
+				state("waitCommand") { //this:State
+					action { //it:State
+					}
+					 transition(edgeName="t02",targetState="doPrepare",cond=whenDispatch("prepare"))
+				}	 
+				state("doPrepare") { //this:State
+					action { //it:State
+						forward("setGoal", "setGoal(at(pizza,table))" ,"carrierbehavior" ) 
+					}
+					 transition(edgeName="t03",targetState="afterPrepare",cond=whenEvent("goalReached"))
+				}	 
+				state("afterPrepare") { //this:State
+					action { //it:State
+						println("After prepare!!!")
+					}
 				}	 
 			}
 		}

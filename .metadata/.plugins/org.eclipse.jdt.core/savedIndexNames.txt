@@ -126,7 +126,6 @@ INDEX VERSION 1.131+C:\Users\Stefano\eclipse-workspace\iss2019\sprint\sprint3\.m
 2233873492.index
 1809334902.index
 2771218461.index
-1799195255.index
 1639433685.index
 995222820.index
 2401389383.index
