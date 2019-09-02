@@ -1,7 +1,7 @@
 package itunibo.jcc.planner.adapter
 
 import itunibo.jcc.planner.framework.Planner
-import itunibo.jcc.planner.model.*import itunibo.jcc.planner.model.Item.BUTLER
+import itunibo.jcc.planner.model.*
 import it.unibo.kactor.ActorBasic
 import aima.core.search.framework.problem.Problem
 import aima.core.search.uninformed.BreadthFirstSearch
@@ -13,9 +13,7 @@ class GotoPlannerAdapter : Planner {
 	private lateinit var actor: ActorBasic;
 	
 	fun update(location: String) {
-		state = SystemState(mutableMapOf<Item, Location>(
-			BUTLER to Location.valueOf(location.toUpperCase())
-		), false)
+		state = SystemState().withButlerLocation { Location[location] }
 	}
 	
 	/**
@@ -26,11 +24,9 @@ class GotoPlannerAdapter : Planner {
 		val matches = regex.matchEntire(goal)
 		val locationStr = matches!!.groups[1]!!.value
 		
-		val location = Location.valueOf(locationStr.toUpperCase())
+		val location = Location[locationStr]
 		
-		val goalState =  SystemState(mutableMapOf<Item, Location>(
-			BUTLER to location
-		), false)
+		val goalState =  SystemState().withButlerLocation { location }
 		
 		val problem = Problem(
 			state,

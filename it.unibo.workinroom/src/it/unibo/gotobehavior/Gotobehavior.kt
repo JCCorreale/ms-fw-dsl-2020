@@ -12,7 +12,7 @@ class Gotobehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
  	
 	override fun getInitialState() : String{
 		return "s0"
-	}
+	}  
 		
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		

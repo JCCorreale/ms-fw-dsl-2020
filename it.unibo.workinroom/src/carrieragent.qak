@@ -34,7 +34,7 @@ var CurGoal = \"\"
 val planner = itunibo.jcc.planner.adapter.CarrierPlannerAdapter()
 "]
 	State s0 initial {
-		["planner.update(\"butler\", \"home\")"] ["planner.update(\"food\", \"fridge\")"] ["planner.update(\"dishes\", \"pantry\")"]
+		["planner.goto(\"home\")"] ["planner.put(\"food\", \"fridge\")"] ["planner.put(\"dishes\", \"pantry\")"]
 		//solve( consult("moves.pl") )
 		//run itunibo.planner.plannerUtil.initAI()
 		//run itunibo.planner.moveUtils.loadRoomMap( myself, mapname )
@@ -138,7 +138,7 @@ val planner = itunibo.jcc.planner.adapter.CarrierPlannerAdapter()
 	State take {
 		onMsg(take : take(Item)) { // TODO Better handling of multiple actions!
 			// from "agent" code
-			println("carrier taking ${payloadArg(0)}") ["planner.update(\"${payloadArg(0)}\", \"butler\")"]
+			println("carrier taking ${payloadArg(0)}") ["planner.take(\"${payloadArg(0)}\")"]
 		}
 	}
 	Goto finalizeMove // No "on(...)" clause specified
@@ -146,7 +146,7 @@ val planner = itunibo.jcc.planner.adapter.CarrierPlannerAdapter()
 	State put {
 		onMsg(put : put(Item,Location)) { // TODO Better handling of multiple actions!
 			// from "agent" code
-			println("carrier putting ${payloadArg(0)} in ${payloadArg(1)}") ["planner.update(\"${payloadArg(0)}\", \"${payloadArg(1)}\")"]
+			println("carrier putting ${payloadArg(0)} in ${payloadArg(1)}") ["planner.put(\"${payloadArg(0)}\", \"${payloadArg(1)}\")"]
 		}
 	}
 	Goto finalizeMove // No "on(...)" clause specified
@@ -154,7 +154,7 @@ val planner = itunibo.jcc.planner.adapter.CarrierPlannerAdapter()
 	State goto {
 		onMsg(goto : goto(L)) { // TODO Better handling of multiple actions!
 			// from "agent" code
-			forward gotobehavior -m setGoal : setGoal(goto($payloadArg(0))) ["planner.update(\"butler\", \"${payloadArg(0)}\")"]
+			forward gotobehavior -m setGoal : setGoal(goto($payloadArg(0))) ["planner.goto(\"${payloadArg(0)}\")"]
 		}
 	}
 	Transition t0

@@ -18,7 +18,7 @@ class Movebehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 		
 		
 		var Curmove     = "" 
-		var suspended = false
+		var suspended = false  
 		
 		var CurGoal = ""
 		

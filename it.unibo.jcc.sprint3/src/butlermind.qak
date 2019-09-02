@@ -97,3 +97,17 @@ QActor roomstate context ctxButlermind {
 //	}  
 //	Goto  waitModelChange
 }
+
+QActor butlermind context ctxButlermind {
+	State s0 initial {
+
+		// TODO
+	  
+//		solve( consult("roomState.pl") )
+//		solve( showContent )
+//		// Register to fridge COAP resource
+//		run itunibo.jcc.coap.roomstate.roomModelFridgeObserver.create(myself)
+//		// Create COAP resource
+////		run itunibo.jcc.coap.fridge.fridgeResourceCoap.create( myself, "fridgeresource" ) //CoAP access
+	}
+}

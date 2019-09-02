@@ -1,8 +1,0 @@
-package itunibo.jcc.coap.fridge.test
-
-import kotlinx.coroutines.runBlocking
-
-fun main() = runBlocking {
-	
-	
-}

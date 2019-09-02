@@ -10,13 +10,11 @@ class ActionGoto(
 ) : ActionButler() {
 
 	override fun applyTo(state: SystemState): SystemState {
-		val newState = SystemState(state)
-		newState.locations[BUTLER] = whereTo
-		return newState
+		return state.withButlerLocation { whereTo }
 	}
 
 	override fun isApplicableTo(state: SystemState): Boolean {
-		return state.locations[BUTLER] != whereTo
+		return state.butlerLocation != whereTo
 	}
 	
 	override fun getCost(from: SystemState, to: SystemState): Double {
@@ -31,8 +29,8 @@ class ActionGoto(
 	companion object {
 		fun getAllApplicable(state: SystemState): Set<Action> {
 			val actions = mutableSetOf<Action>()
-			enumValues<Location>().forEach {
-				val action = ActionGoto(it)
+			Location.locations.values.forEach {
+				val action = ActionGoto(it) 
 				if (action.isApplicableTo(state))
 					actions.add(action)
 			}

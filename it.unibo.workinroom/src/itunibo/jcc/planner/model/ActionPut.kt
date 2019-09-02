@@ -8,24 +8,27 @@ import kotlinx.coroutines.yield
 class ActionPut(
 	private val what: Item,
 	private val where: Location
-) : ActionButler() {
+) : ActionButler() { 
 	
-	init {
-		if (what == BUTLER)
-			throw IllegalArgumentException("Butler can't be put")
-	}
+//	init {
+//		if (what == BUTLER)
+//			throw IllegalArgumentException("Butler can't be put")
+//	}
 
 	override fun applyTo(state: SystemState): SystemState {
-		val newState = SystemState(state)
-		newState.locations.put(what, where)
-		newState.butlerLoaded = false
-		return newState
+		return state
+			.withLocationItems { it.getOrPut(where) { mutableListOf<Item>() }.add(what) }
+			.withButlerLoad { it.remove(what) }
+		
+//		val newState = SystemState(state)
+//		newState.locations.put(what, where)
+//		newState.butlerLoaded = false
+//		return newState
 	}
 
 	override fun isApplicableTo(state: SystemState): Boolean {
-		return !state.locations.contains(what) &&
-				state.locations[BUTLER] == where &&
-				state.butlerLoaded
+		return state.butlerLoad.contains(what) &&
+				state.butlerLocation == where
 	}
 	
 	override fun getCost(from: SystemState, to: SystemState): Double {
@@ -40,13 +43,12 @@ class ActionPut(
 	companion object {
 		fun getAllApplicable(state: SystemState): Set<Action> {
 			val actions = mutableSetOf<Action>()
-			enumValues<Location>().forEach { location ->
-				enumValues<Item>().forEach { item ->
-					if (item != BUTLER) {
-						val action = ActionPut(item, location)
-						if (action.isApplicableTo(state))
-							actions.add(action)
-					}
+			Location.locations.values.forEach { location ->
+				Item.items.values.forEach { item ->
+					// No need to handle the butler explicitly anymore
+					val action = ActionPut(item, location)
+					if (action.isApplicableTo(state))
+						actions.add(action)
 				}
 			}
 			

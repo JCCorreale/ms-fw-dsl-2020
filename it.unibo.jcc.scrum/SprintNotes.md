@@ -15,6 +15,12 @@ at(robot, traveling) (?)
 // O ancora do al maitre una VISTA che le aggrega entrambe? (Un altro attore roomview/roomstate?)
 at(caviar, fridge)
 
+
+Spunti per tesi:
+- esemplificare il ruolo delle software factory evidenziando i limiti dei singoli livelli di astrazione
+(es. planner "procedurale" vs planner autogenerato su base di ADL - procedurale ha azioni che necessitano
+di sapere implementazione dello stato. Esemplificazione del fatto che ciò ha richiesto lavoro in Sprint3)
+
 TODO
 * Fridge frontend
 * Maitre app

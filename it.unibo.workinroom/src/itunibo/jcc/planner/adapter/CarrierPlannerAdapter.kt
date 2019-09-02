@@ -1,24 +1,42 @@
 package itunibo.jcc.planner.adapter
 
 import itunibo.jcc.planner.framework.Planner
-import itunibo.jcc.planner.model.*import itunibo.jcc.planner.model.Item.BUTLER
+import itunibo.jcc.planner.model.*
 import it.unibo.kactor.ActorBasic
 import aima.core.search.framework.problem.Problem
 import aima.core.search.uninformed.BreadthFirstSearch
+import aima.core.search.uninformed.UniformCostSearch
 
 class CarrierPlannerAdapter : Planner {
 	
-	private var state = SystemState(mutableMapOf<Item, Location>(), false);
+	private var state = SystemState();
 	
 	private lateinit var actor: ActorBasic;
 	
-	fun update(item: String, location: String) {
-		if (location.toUpperCase() == "BUTLER")
-			// Butler is not a real location, just remove the item from the map
-			state.locations.remove(Item.valueOf(item.toUpperCase()))
-		else
-			state.locations[Item.valueOf(item.toUpperCase())] = Location.valueOf(location.toUpperCase())
+	// TODO Single "at" method to be different from actions?!
+	
+	fun goto(location: String) {
+		state = state.withButlerLocation { Location[location] }
 	}
+	
+	fun put(item: String, location: String) {
+		state = state.withButlerLoad { it.remove(Item[item]) }
+					.withLocationItems { it.getOrPut(Location[location]) { mutableListOf<Item>() }.add(Item[item]) }
+	}
+	// TODO Implicitly from butler location (unify!!!)
+	fun take(item: String/*, location: String*/) {
+		state = state.withButlerLoad { it.add(Item[item]) }
+					.withLocationItems { it[/*Location[location]*/state.butlerLocation]!!.remove(Item[item]) }
+	}
+	
+	// OLD
+//	fun update(item: String, location: String) {
+//		if (location.toUpperCase() == "BUTLER")
+////			 Butler is not a real location, just remove the item from the map
+//			state.locations.remove(Item.valueOf(item.toUpperCase()))
+//		else
+//			state.locations[Item.valueOf(item.toUpperCase())] = Location.valueOf(location.toUpperCase())
+//	}
 	
 	/**
 	 * Expects at(Item,Location) as goal
@@ -29,14 +47,13 @@ class CarrierPlannerAdapter : Planner {
 		val itemStr = matches!!.groups[1]!!.value
 		val locationStr = matches!!.groups[2]!!.value
 		
-		val item = Item.valueOf(itemStr.toUpperCase())
-		val location = Location.valueOf(locationStr.toUpperCase())
+		val item = Item[itemStr]
+		val location = Location[locationStr]
 		
 		println("CarrierPlannerAdapter | planGoal | item=$item location=$location")
 		
-		val goalState =  SystemState(mutableMapOf<Item, Location>(
-			item to location
-		), false)
+		// TODO Multiple items?!
+		val goalState =  SystemState().withLocationItems { it.put(location, mutableListOf(item)) }
 		
 		val problem = Problem(
 			state,
@@ -51,11 +68,11 @@ class CarrierPlannerAdapter : Planner {
 		
 		// TODO Agent
 		
-		val breadthFirstSearch = BreadthFirstSearch();
+		val search = BreadthFirstSearch()
 		
-		println("CarrierPlannerAdapter | planGoal | Searching solution...")		
+		println("CarrierPlannerAdapter | planGoal | Searching solution...")
 				
-		val actions = breadthFirstSearch.findActions(problem)
+		val actions = search.findActions(problem)
 		
 		// TODO
 		println("CarrierPlannerAdapter | planGoal | actions=$actions")
