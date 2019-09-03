@@ -21,6 +21,7 @@ class Roomstate ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, s
 						solve("consult('roomState.pl')","") //set resVar	
 						solve("showContent","") //set resVar	
 						itunibo.jcc.coap.roomstate.roomModelFridgeObserver.create(myself)
+						itunibo.jcc.coap.roomstate.roomModelResourceCoap.create(myself ,"roomstate" )
 					}
 					 transition( edgeName="goto",targetState="waitModelChange", cond=doswitch() )
 				}	 

@@ -29,10 +29,10 @@ QActor roomstate context ctxButlermind {
 		// Register to fridge COAP resource
 		run itunibo.jcc.coap.roomstate.roomModelFridgeObserver.create(myself)
 		// Create COAP resource
-//		run itunibo.jcc.coap.fridge.fridgeResourceCoap.create( myself, "fridgeresource" ) //CoAP access
+		run itunibo.jcc.coap.roomstate.roomModelResourceCoap.create( myself, "roomstate" ) //CoAP access
 	}
 	Goto waitModelChange
-	 
+	
 	State waitModelChange{ }
 	Transition t0 whenMsg take -> updateModel
 			 	  whenMsg put -> updateModel
@@ -127,6 +127,7 @@ QActor butlermind context ctxButlermind {
 	Transition t0 whenMsg prepare -> doPrepare
 	
 	// TODO PLANNER MUST HAVE SAME STATE REPRESENTATION!!!
+	// --> Entrambi si "collegano" al roomstate!
 
 	State doPrepare{
 		

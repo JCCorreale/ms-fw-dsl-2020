@@ -8,14 +8,15 @@ import org.eclipse.californium.core.CoapResponse
 import org.eclipse.californium.core.Utils
 import org.eclipse.californium.core.coap.MediaTypeRegistry
 import itunibo.coap.observer.AsynchListener
-
+	
+	// FRIDGE ON PORT 5684 
 
 	fun main() {
 		val hostAddr = "localhost" // "192.168.43.67 3"
 
 		val resourceName = "fridgeresource"
-		//createClient("localhost", 5683, resourceName)
-		val client = it.unibo.jcc.coap.fridge.client.MyCoapClient(hostAddr, 5683, resourceName)
+		//createClient("localhost", 5684, resourceName)
+		val client = it.unibo.jcc.coap.fridge.client.MyCoapClient(hostAddr, 5684, resourceName)
 
 		// List all contents
 		client.synchGet()

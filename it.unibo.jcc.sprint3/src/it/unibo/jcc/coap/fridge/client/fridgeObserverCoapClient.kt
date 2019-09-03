@@ -11,9 +11,11 @@ import org.eclipse.californium.core.CoapObserveRelation
 import org.eclipse.californium.core.CoapResponse
 import itunibo.outgui.outguiSupport
 import java.awt.Color
- 
+
+// FRIDGE ON PORT 5684 
+
 object fridgeObserverCoapClient : CoapHandler {
-	val fridgeResourceAddr = "coap://localhost:5683/fridgeresource" // "coap://192.168.43.67:5683"
+	val fridgeResourceAddr = "coap://localhost:5684/fridgeresource" // "coap://192.168.43.67:5683"
 	val outDev            = outguiSupport.create("Fridge Coap OBSERVER", Color.yellow)
 	
 	override fun onLoad(response: CoapResponse?) {
@@ -27,7 +29,7 @@ object fridgeObserverCoapClient : CoapHandler {
 	fun create(resourceAddr : String = fridgeResourceAddr){
 		val client   = CoapClient( resourceAddr )
 		//val relation =
-			client.observe(  fridgeObserverCoapClient )   
+		client.observe(  fridgeObserverCoapClient )   
 		//relation!!.proactiveCancel()   /AT THE END
 	}
 }

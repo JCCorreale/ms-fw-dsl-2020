@@ -13,9 +13,11 @@ import itunibo.outgui.outguiSupport
 import java.awt.Color
 import it.unibo.kactor.ActorBasic
 import java.util.Arrays
+
+// FRIDGE ON PORT 5684 
  
 object roomModelFridgeObserver : CoapHandler {
-	val fridgeResourceAddr = "coap://localhost:5683/fridgeresource" // "coap://192.168.43.67:5683"
+	val fridgeResourceAddr = "coap://localhost:5684/fridgeresource" // "coap://192.168.43.67:5683"
 //	val outDev            = outguiSupport.create("Fridge Coap OBSERVER", Color.yellow)
 	
 	lateinit var actor: ActorBasic;
@@ -24,6 +26,8 @@ object roomModelFridgeObserver : CoapHandler {
 		// content = [item1, item2, ..., itemN]
 		val content = response!!.getResponseText()
 		val items = itemsList(content)
+		
+		println("roomModelFridgeObserver | onload $items")
 //
 		actor.solve(" retractall( at(X, fridge) ) ")
 		

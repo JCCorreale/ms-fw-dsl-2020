@@ -9,14 +9,14 @@ Context ctxFridge     ip [host="localhost" port=8095]  -mqtt
 
 QActor resourcemodel context ctxFridge {
 	
-	State s0 initial {		  
-		solve( consult("fridgeContent.pl")	 )
+	State s0 initial {
+		solve( consult("fridgeContent.pl") )
 		solve( showFridgeContent )
 		// Create COAP resource
 		run itunibo.jcc.coap.fridge.fridgeResourceCoap.create( myself, "fridgeresource" ) //CoAP access
-	} 
+	}
 	Goto waitModelChange
-	 
+	
 	State waitModelChange{ }
 	Transition t0 whenMsg take -> updateModel
 			 	  whenMsg put -> updateModel

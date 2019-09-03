@@ -2,7 +2,7 @@
 % fridgeContent.pl
 %
 
-at(robot, home).
+at(butler, home).
 
 at(dishes, pantry).
 %% fridge content updated at startup and by observing fridge resurce

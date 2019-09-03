@@ -1,4 +1,4 @@
-package itunibo.jcc.coap.fridge
+package itunibo.jcc.coap.roomstate
 
 import org.eclipse.californium.core.CoapResource
 import org.eclipse.californium.core.CoapServer
@@ -9,19 +9,17 @@ import org.eclipse.californium.core.coap.MediaTypeRegistry
 import org.eclipse.californium.core.server.resources.Resource
 import it.unibo.kactor.ActorBasic
 
-// LISTENS ON PORT 5684 (to allow multiple servers on same host!)
-
-class fridgeResourceCoap (name : String ) : CoapResource(name) {
+class roomModelResourceCoap (name : String ) : CoapResource(name) {
 	
 	companion object {
 		lateinit var actor : ActorBasic
 //		var curmodelval = "unknown"
-		lateinit var resourceCoap : fridgeResourceCoap
+		lateinit var resourceCoap : roomModelResourceCoap
 		
 		fun create( a: ActorBasic, name: String  ){
 			actor = a
-			val server   = CoapServer(5684);		//COAP SERVER
-			resourceCoap = fridgeResourceCoap( name )
+			val server   = CoapServer(5683);		//COAP SERVER
+			resourceCoap = roomModelResourceCoap( name )
 			server.add( resourceCoap );
 			println("--------------------------------------------------")
 			println("$name Coap Server started");	
@@ -57,36 +55,13 @@ class fridgeResourceCoap (name : String ) : CoapResource(name) {
 	}
 	 
 	override fun handleGET(exchange: CoapExchange?) {
-		
-		val uriPath = exchange?.getRequestOptions()?.uriPath;
-		
-		println(uriPath)
-		
-        // check if there is a sub-resource given, and if so use it for processing
-        if (uriPath!!.size > 1) {
-			checkContentExists(uriPath.last(), exchange)
-        } else {
-//            listAllContents(exchange)
-			exchange!!.respond(ResponseCode.CONTENT, listAllContents(), MediaTypeRegistry.TEXT_PLAIN)
-        }
-		
- 		//println("%%%%%%%%%%%%%%%% handleGET  curmodelval=$curmodelval  "  )			
-//		exchange!!.respond(ResponseCode.CONTENT, curmodelval, MediaTypeRegistry.TEXT_PLAIN)
+		exchange!!.respond(ResponseCode.CONTENT, listAllContents(), MediaTypeRegistry.TEXT_PLAIN)
 	}
 	
 	fun listAllContents(): String {
-		actor.solve("findall( Food, content( Food ), Contents )")
-		return actor.getCurSol("Contents").toString()
+		actor.solve("findall(at(Item, Location), at(Item, Location), List)")
+		return actor.getCurSol("List").toString()
 //		exchange!!.respond(ResponseCode.CONTENT, contents, MediaTypeRegistry.TEXT_PLAIN)
-	}
-	
-	fun checkContentExists(content: String, exchange: CoapExchange?) {
-		
-		println("checkContentExists $content")
-		actor.solve("count( content( $content ), Count )")
-		println("checkContentExists after solve")
-		val count = actor.getCurSol("Count").toString()
-		exchange!!.respond(ResponseCode.CONTENT, count, MediaTypeRegistry.TEXT_PLAIN)
 	}
 	
     override fun getChild(name: String): Resource {
