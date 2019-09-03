@@ -3,21 +3,22 @@ Agent carrieragent ip [host="localhost" port=8042] -mqtt
 System {
 	mqttBroker "localhost" : 1883
 	
-    Context ctxDummy   ip [host="otherresourcelocalhost" port=8035]   -mqtt
+    Context ctxDummyForGotoBehavior   ip [host="otherresourcelocalhost" port=8035]   -mqtt
+    Context ctxDummyForRoomState   ip [host="otherresourcelocalhost" port=8038]   -mqtt
 }
 
-ExternalBehavior gotobehavior context ctxDummy // TODO Behaviors as actors (check name consistency between internal/external)
+ExternalBehavior gotobehavior context ctxDummyForGotoBehavior // TODO Behaviors as actors (check name consistency internal/external)
+ExternalBehavior roomstate context ctxDummyForRoomState
 
 Behavior carrier planner itunibo.jcc.^planner.adapter.^CarrierPlannerAdapter {
 	
 	init {
-		// TODO Update from prolog file
-		["planner.goto(\"home\")"]
-		["planner.put(\"food\", \"fridge\")"]
-		["planner.put(\"dishes\", \"pantry\")"]
+		// Set up planner according to the state of the room (subsequent updates will be done explicitly - for now)
+		run itunibo.jcc.coap.roomstate.carrierRoomStateClient.create(myself, ^planner)
+		run itunibo.jcc.coap.roomstate.carrierRoomStateClient.initPlanner()
 	}
 	
-	// !!!!
+	// TODO Update roomstate!
 	
 	action take(Item) {
 		println("carrier taking ${payloadArg(0)}")
@@ -49,7 +50,7 @@ Behavior carrier planner itunibo.jcc.^planner.adapter.^CarrierPlannerAdapter {
 	}
 	
 	onGoalReached {
-		println("gotobehavior: onGoalReached")
+		println("carrierbehavior: onGoalReached")
 	}
 	
 //	onSuspended {

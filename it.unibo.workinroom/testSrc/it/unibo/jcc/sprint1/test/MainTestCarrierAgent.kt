@@ -8,8 +8,14 @@ import it.unibo.kactor.sysUtil
 import kotlinx.coroutines.runBlocking
 import it.unibo.kactor.MsgUtil
 
-
-/* REQUIRES A RUNNING ROBOTMIND */
+/*
+ * Required launch:
+ * - robotmind [MANUAL]
+ * - moving agent
+ * - goto agent
+ * - butler mind (carrier loads initial state from room model)
+ * - smart fridge (required by room state) [MANUAL]
+ */
 
 fun main() = runBlocking {
 
@@ -45,8 +51,8 @@ fun main() = runBlocking {
 	delay(15000)
 	
 	// Send goal
-	println(" %%%%%%% MainTestCarrierAgent at(food, table)")
-	MsgUtil.sendMsg("setGoal","setGoal(at(food, table))",worker!!)
+	println(" %%%%%%% MainTestCarrierAgent at(pizza, table)")
+	MsgUtil.sendMsg("setGoal","setGoal(at(pizza, table))",worker!!)
 	
 	delay(15000)
 	

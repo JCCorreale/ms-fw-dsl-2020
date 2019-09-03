@@ -31,9 +31,8 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						planner.update("butler", "home")
-						planner.update("food", "fridge")
-						planner.update("dishes", "pantry")
+						itunibo.jcc.coap.roomstate.carrierRoomStateClient.create(myself ,planner )
+						itunibo.jcc.coap.roomstate.carrierRoomStateClient.initPlanner(  )
 					}
 					 transition( edgeName="goto",targetState="waitGoal", cond=doswitch() )
 				}	 
@@ -116,7 +115,7 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 						if( checkMsgContent( Term.createTerm("take(Item)"), Term.createTerm("take(Item)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								println("carrier taking ${payloadArg(0)}")
-								planner.update("${payloadArg(0)}", "butler")
+								planner.take("${payloadArg(0)}")
 						}
 					}
 					 transition( edgeName="goto",targetState="finalizeMove", cond=doswitch() )
@@ -126,7 +125,7 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 						if( checkMsgContent( Term.createTerm("put(Item,Location)"), Term.createTerm("put(Item,Location)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								println("carrier putting ${payloadArg(0)} in ${payloadArg(1)}")
-								planner.update("${payloadArg(0)}", "${payloadArg(1)}")
+								planner.put("${payloadArg(0)}", "${payloadArg(1)}")
 						}
 					}
 					 transition( edgeName="goto",targetState="finalizeMove", cond=doswitch() )
@@ -136,7 +135,7 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 						if( checkMsgContent( Term.createTerm("goto(L)"), Term.createTerm("goto(L)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								forward("setGoal", "setGoal(goto(${payloadArg(0)}))" ,"gotobehavior" ) 
-								planner.update("butler", "${payloadArg(0)}")
+								planner.goto("${payloadArg(0)}")
 						}
 					}
 					 transition(edgeName="t07",targetState="goto_onSuspend",cond=whenDispatch("suspend"))

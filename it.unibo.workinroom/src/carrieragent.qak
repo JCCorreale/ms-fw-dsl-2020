@@ -16,8 +16,10 @@ Dispatch retry 		: retry
 Dispatch replan 	: replan
 Dispatch setGoal 	: setGoal
 Context ctxCarrieragent ip [host="localhost" port=8042] -mqtt
-Context ctxDummy ip [host="otherresourcelocalhost" port=8035] -mqtt
-ExternalQActor gotobehavior context ctxDummy
+Context ctxDummyForGotoBehavior ip [host="otherresourcelocalhost" port=8035] -mqtt
+Context ctxDummyForRoomState ip [host="otherresourcelocalhost" port=8038] -mqtt
+ExternalQActor gotobehavior context ctxDummyForGotoBehavior
+ExternalQActor roomstate context ctxDummyForRoomState
 QActor carrierbehavior context ctxCarrieragent {
 ["
 
@@ -34,7 +36,7 @@ var CurGoal = \"\"
 val planner = itunibo.jcc.planner.adapter.CarrierPlannerAdapter()
 "]
 	State s0 initial {
-		["planner.goto(\"home\")"] ["planner.put(\"food\", \"fridge\")"] ["planner.put(\"dishes\", \"pantry\")"]
+		run itunibo.jcc.coap.roomstate.carrierRoomStateClient.create(myself, planner) run itunibo.jcc.coap.roomstate.carrierRoomStateClient.initPlanner()
 		//solve( consult("moves.pl") )
 		//run itunibo.planner.plannerUtil.initAI()
 		//run itunibo.planner.moveUtils.loadRoomMap( myself, mapname )

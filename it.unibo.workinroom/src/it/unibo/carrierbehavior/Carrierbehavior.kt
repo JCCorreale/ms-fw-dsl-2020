@@ -31,9 +31,8 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						planner.goto("home")
-						planner.put("food", "fridge")
-						planner.put("dishes", "pantry")
+						itunibo.jcc.coap.roomstate.carrierRoomStateClient.create(myself ,planner )
+						itunibo.jcc.coap.roomstate.carrierRoomStateClient.initPlanner(  )
 					}
 					 transition( edgeName="goto",targetState="waitGoal", cond=doswitch() )
 				}	 

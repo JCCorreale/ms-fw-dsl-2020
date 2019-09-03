@@ -10,6 +10,8 @@ import it.unibo.kactor.MsgUtil
 
 // RUN MainCtxFridge first
 
+// ROOM CLIENT COAP ON PORT 5685
+
 fun main() = runBlocking {
 	
 	var roomState : ActorBasic?

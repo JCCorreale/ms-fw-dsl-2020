@@ -11,6 +11,8 @@ import it.unibo.kactor.ActorBasic
 
 class roomModelResourceCoap (name : String ) : CoapResource(name) {
 	
+	// LISTEN ON PORT 5685
+	
 	companion object {
 		lateinit var actor : ActorBasic
 //		var curmodelval = "unknown"
@@ -18,7 +20,7 @@ class roomModelResourceCoap (name : String ) : CoapResource(name) {
 		
 		fun create( a: ActorBasic, name: String  ){
 			actor = a
-			val server   = CoapServer(5683);		//COAP SERVER
+			val server   = CoapServer(5685);		//COAP SERVER
 			resourceCoap = roomModelResourceCoap( name )
 			server.add( resourceCoap );
 			println("--------------------------------------------------")
