@@ -5,6 +5,7 @@ import itunibo.jcc.planner.model.*
 import it.unibo.kactor.ActorBasic
 import aima.core.search.framework.problem.Problem
 import aima.core.search.uninformed.BreadthFirstSearch
+import aima.core.agent.Action
 
 class GotoPlannerAdapter : Planner {
 	
@@ -48,7 +49,11 @@ class GotoPlannerAdapter : Planner {
 		// TODO
 		println(actions);
 		
-		actions.forEach({ actor.solve("assert( move( $it ) )") })
+		actions.forEach({
+			
+			if (!it.isNoOp())
+				actor.solve("assert( move( $it ) )")
+		})
 		
 	}
 }

@@ -28,16 +28,34 @@ fun main() = runBlocking {
 //	}
 	
 	// Give time to launch all "agents"
-	delay(15000)
+	delay(12000)
 	
 	butlerMind = sysUtil.getActor("butlermind")
 	
 	println(" %%%%%%% MainTestButlerMind PREPARE")
-	
-	// Put content
 	MsgUtil.sendMsg("prepare","prepare", butlerMind!!)
 	
+	delay(5000)
+	
+	println(" %%%%%%% MainTestButlerMind STOP")
+	MsgUtil.sendMsg("stop","stop", butlerMind!!)
+	
 	delay(3000)
+	
+	println(" %%%%%%% MainTestButlerMind REACTIVATE")
+	MsgUtil.sendMsg("reactivate","reactivate", butlerMind!!)
+	
+	delay(15000)
+	
+	println(" %%%%%%% MainTestButlerMind STOP")
+	MsgUtil.sendMsg("stop","stop", butlerMind!!)
+	
+	delay(3000)
+	
+	println(" %%%%%%% MainTestButlerMind REACTIVATE")
+	MsgUtil.sendMsg("reactivate","reactivate", butlerMind!!)
+	
+	// TODO Test obstacle
 	
 	delay(60 * 1000)
 }

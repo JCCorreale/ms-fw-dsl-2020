@@ -25,6 +25,7 @@ class Butlermind ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, 
 					action { //it:State
 					}
 					 transition(edgeName="t02",targetState="doPrepare",cond=whenDispatch("prepare"))
+					transition(edgeName="t03",targetState="suspend",cond=whenDispatch("stop"))
 				}	 
 				state("doPrepare") { //this:State
 					action { //it:State
@@ -33,12 +34,28 @@ class Butlermind ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, 
 						forward("setGoal", "setGoal(at(dishes,table))" ,"carrierbehavior" ) 
 						forward("setGoal", "setGoal(at(butler,home))" ,"carrierbehavior" ) 
 					}
-					 transition(edgeName="t03",targetState="afterPrepare",cond=whenEvent("goalReached"))
+					 transition( edgeName="goto",targetState="handleSuspendResume", cond=doswitch() )
 				}	 
-				state("afterPrepare") { //this:State
+				state("handleSuspendResume") { //this:State
 					action { //it:State
-						println("After prepare!!!")
+						println("butlermind | handleSuspendResume")
 					}
+					 transition(edgeName="t04",targetState="waitCommand",cond=whenEvent("goalReached"))
+					transition(edgeName="t05",targetState="suspend",cond=whenDispatch("stop"))
+				}	 
+				state("suspend") { //this:State
+					action { //it:State
+						println("butlermind | suspend")
+						forward("suspend", "suspend" ,"carrierbehavior" ) 
+					}
+					 transition(edgeName="t06",targetState="resume",cond=whenDispatch("reactivate"))
+				}	 
+				state("resume") { //this:State
+					action { //it:State
+						println("butlermind | resume")
+						forward("resume", "resume" ,"carrierbehavior" ) 
+					}
+					 transition( edgeName="goto",targetState="handleSuspendResume", cond=doswitch() )
 				}	 
 			}
 		}

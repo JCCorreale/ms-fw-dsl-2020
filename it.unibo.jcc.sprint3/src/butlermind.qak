@@ -4,9 +4,13 @@ mqttBroker "localhost" : 1883    //192.168.1.18  192.168.43.229
 
 // From the maitre
 Dispatch prepare : prepare
+Dispatch stop : stop
+Dispatch reactivate : reactivate
 
 // From/to carrierbehavior
 Dispatch setGoal : setGoal(G)
+Dispatch suspend : suspend
+Dispatch resume : resume
 Dispatch goalReached : goalReached
 
 // To roomstate
@@ -125,20 +129,35 @@ QActor butlermind context ctxButlermind {
 	 
 	State waitCommand{ }
 	Transition t0 whenMsg prepare -> doPrepare
+				  whenMsg stop -> suspend // TODO Workaround
 
 	State doPrepare{
 		
-		// TODO Execute at(Item,Location) goals from prolog file
+		// TODO Goals from prolog file
 		
+		// One goal at a time (current planner too slow for conjunctions of goals)
 		forward carrierbehavior -m setGoal : setGoal( at(pizza, table) )
 		forward carrierbehavior -m setGoal : setGoal( at(caviar, table) )
 		forward carrierbehavior -m setGoal : setGoal( at(dishes, table) )
 		forward carrierbehavior -m setGoal : setGoal( at(butler, home) )
 	}
-	Transition t0 whenEvent goalReached -> afterPrepare
+	Goto handleSuspendResume
 	
-	State afterPrepare{
-		// TODO
-		println("After prepare!!!")
+	State handleSuspendResume{
+		println("butlermind | handleSuspendResume")
 	}
+	Transition t0 whenEvent goalReached -> waitCommand
+				  whenMsg stop -> suspend
+				  
+	State suspend{
+		println("butlermind | suspend")
+		forward carrierbehavior -m suspend : suspend
+	}
+	Transition t0 whenMsg reactivate -> resume
+	
+	State resume{
+		println("butlermind | resume")
+		forward carrierbehavior -m resume : resume
+	}
+	Goto handleSuspendResume
 }
