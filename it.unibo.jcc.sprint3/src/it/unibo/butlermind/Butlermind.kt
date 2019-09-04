@@ -29,6 +29,9 @@ class Butlermind ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, 
 				state("doPrepare") { //this:State
 					action { //it:State
 						forward("setGoal", "setGoal(at(pizza,table))" ,"carrierbehavior" ) 
+						forward("setGoal", "setGoal(at(caviar,table))" ,"carrierbehavior" ) 
+						forward("setGoal", "setGoal(at(dishes,table))" ,"carrierbehavior" ) 
+						forward("setGoal", "setGoal(at(butler,home))" ,"carrierbehavior" ) 
 					}
 					 transition(edgeName="t03",targetState="afterPrepare",cond=whenEvent("goalReached"))
 				}	 

@@ -125,15 +125,15 @@ QActor butlermind context ctxButlermind {
 	 
 	State waitCommand{ }
 	Transition t0 whenMsg prepare -> doPrepare
-	
-	// TODO PLANNER MUST HAVE SAME STATE REPRESENTATION!!!
-	// --> Entrambi si "collegano" al roomstate!
 
 	State doPrepare{
 		
 		// TODO Execute at(Item,Location) goals from prolog file
 		
 		forward carrierbehavior -m setGoal : setGoal( at(pizza, table) )
+		forward carrierbehavior -m setGoal : setGoal( at(caviar, table) )
+		forward carrierbehavior -m setGoal : setGoal( at(dishes, table) )
+		forward carrierbehavior -m setGoal : setGoal( at(butler, home) )
 	}
 	Transition t0 whenEvent goalReached -> afterPrepare
 	
