@@ -8,7 +8,7 @@ import aima.core.search.uninformed.BreadthFirstSearch
 import aima.core.search.uninformed.UniformCostSearch
 
 class CarrierPlannerAdapter : Planner {
-	
+
 	private var state = SystemState();
 	
 	private lateinit var actor: ActorBasic;
@@ -27,6 +27,10 @@ class CarrierPlannerAdapter : Planner {
 	fun take(item: String/*, location: String*/) {
 		state = state.withButlerLoad { it.add(Item[item]) }
 					.withLocationItems { it[/*Location[location]*/state.butlerLocation]!!.remove(Item[item]) }
+	}
+	
+	fun getButlerLocationAsString(): String {
+		return state.butlerLocation.toString()
 	}
 	
 	// OLD

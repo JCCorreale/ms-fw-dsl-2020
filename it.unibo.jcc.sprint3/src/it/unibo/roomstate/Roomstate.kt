@@ -30,33 +30,41 @@ class Roomstate ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, s
 					}
 					 transition(edgeName="t00",targetState="updateModel",cond=whenDispatch("take"))
 					transition(edgeName="t01",targetState="updateModel",cond=whenDispatch("put"))
+					transition(edgeName="t02",targetState="updateModel",cond=whenDispatch("goto"))
 				}	 
 				state("updateModel") { //this:State
 					action { //it:State
 						println("$name in ${currentState.stateName} | $currentMsg")
 						if( checkMsgContent( Term.createTerm("take(Item,Location)"), Term.createTerm("take(Item,Location)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								if(payloadArg(1) == "fridge"){ forward("take", "take(${payloadArg(0)})" ,"resourcemodel" ) 
+								if(payloadArg(1) == "fridge"){ forward("take", "take(${payloadArg(0)})" ,"fridgeresourcemodel" ) 
 								 }
 								else
 								 { solve("retract(at(${payloadArg(0)},${payloadArg(1)}))","") //set resVar	
-								 if(currentSolution.isSuccess()) {  }
+								 if(currentSolution.isSuccess()) { itunibo.jcc.coap.roomstate.roomModelResourceCoap.updateState(  )
+								  }
 								 else
 								 { println("*** Can't take non-existing content! ***")
 								  }
 								  }
-								solve("showContent","") //set resVar	
 						}
 						if( checkMsgContent( Term.createTerm("put(Item,Location)"), Term.createTerm("put(Item,Location)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								if(payloadArg(1) == "fridge"){ forward("put", "put(${payloadArg(0)})" ,"resourcemodel" ) 
+								if(payloadArg(1) == "fridge"){ forward("put", "put(${payloadArg(0)})" ,"fridgeresourcemodel" ) 
 								 }
 								else
 								 { solve("assert(at(${payloadArg(0)},${payloadArg(1)}))","") //set resVar	
-								 if(currentSolution.isSuccess()) {  }
+								 if(currentSolution.isSuccess()) { itunibo.jcc.coap.roomstate.roomModelResourceCoap.updateState(  )
 								  }
-								solve("showContent","") //set resVar	
+								  }
 						}
+						if( checkMsgContent( Term.createTerm("goto(Location)"), Term.createTerm("goto(Location)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								if(currentSolution.isSuccess()) { solve("retract(at(butler,X))","") //set resVar	
+								solve("assert(at(butler,${payloadArg(0)}))","") //set resVar	
+								 }
+						}
+						solve("showContent","") //set resVar	
 					}
 					 transition( edgeName="goto",targetState="waitModelChange", cond=doswitch() )
 				}	 

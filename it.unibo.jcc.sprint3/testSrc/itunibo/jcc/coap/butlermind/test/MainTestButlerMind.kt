@@ -21,11 +21,11 @@ fun main() = runBlocking {
 		it.unibo.ctxButlermind.main()
 	}
 	
-	// To see the state of the fidge from COAP
-//	GlobalScope.launch {
-//	    println(" %%%%%%% MainTestRoomState starting fridgeObserverCoapClient")
-//		it.unibo.jcc.coap.fridge.client.fridgeObserverCoapClient.create( "${it.unibo.jcc.coap.fridge.client.fridgeObserverCoapClient.fridgeResourceAddr}" )
-//	}
+	// Monitor room state
+	GlobalScope.launch {
+	    println(" %%%%%%% MainTestRoomState starting roomModelObserverCoapClient")
+		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create()
+	}
 	
 	// Give time to launch all "agents"
 	delay(12000)
@@ -35,27 +35,27 @@ fun main() = runBlocking {
 	println(" %%%%%%% MainTestButlerMind PREPARE")
 	MsgUtil.sendMsg("prepare","prepare", butlerMind!!)
 	
-	delay(5000)
-	
-	println(" %%%%%%% MainTestButlerMind STOP")
-	MsgUtil.sendMsg("stop","stop", butlerMind!!)
-	
-	delay(3000)
-	
-	println(" %%%%%%% MainTestButlerMind REACTIVATE")
-	MsgUtil.sendMsg("reactivate","reactivate", butlerMind!!)
-	
-	delay(15000)
-	
-	println(" %%%%%%% MainTestButlerMind STOP")
-	MsgUtil.sendMsg("stop","stop", butlerMind!!)
-	
-	delay(3000)
-	
-	println(" %%%%%%% MainTestButlerMind REACTIVATE")
-	MsgUtil.sendMsg("reactivate","reactivate", butlerMind!!)
+//	delay(5000)
+//	
+//	println(" %%%%%%% MainTestButlerMind STOP")
+//	MsgUtil.sendMsg("stop","stop", butlerMind!!)
+//	
+//	delay(3000)
+//	
+//	println(" %%%%%%% MainTestButlerMind REACTIVATE")
+//	MsgUtil.sendMsg("reactivate","reactivate", butlerMind!!)
+//	
+//	delay(15000)
+//	
+//	println(" %%%%%%% MainTestButlerMind STOP")
+//	MsgUtil.sendMsg("stop","stop", butlerMind!!)
+//	
+//	delay(3000)
+//	
+//	println(" %%%%%%% MainTestButlerMind REACTIVATE")
+//	MsgUtil.sendMsg("reactivate","reactivate", butlerMind!!)
 	
 	// TODO Test obstacle
 	
-	delay(60 * 1000)
+	delay(600 * 1000)
 }

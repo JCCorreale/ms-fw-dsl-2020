@@ -26,6 +26,9 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 		//var CurGoalY = ""
 		
 		
+			var payloadArg0 = ""
+			var payloadArg1 = ""
+		
 		// From Planner declaration
 		val planner = itunibo.jcc.planner.adapter.CarrierPlannerAdapter()
 		return { //this:ActionBasciFsm
@@ -114,8 +117,12 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("take(Item)"), Term.createTerm("take(Item)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								println("carrier taking ${payloadArg(0)}")
 								planner.take("${payloadArg(0)}")
+								var butlerLocation = planner.getButlerLocationAsString()
+								println("carrier taking ${payloadArg(0)} from $butlerLocation")
+								payloadArg0 = payloadArg(0)
+								println("carrier sending take(${payloadArg0},$butlerLocation) to roomstate")
+								forward("take", "take(${payloadArg0},$butlerLocation)" ,"roomstate" )
 						}
 					}
 					 transition( edgeName="goto",targetState="finalizeMove", cond=doswitch() )
@@ -126,6 +133,10 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								println("carrier putting ${payloadArg(0)} in ${payloadArg(1)}")
 								planner.put("${payloadArg(0)}", "${payloadArg(1)}")
+								payloadArg0 = payloadArg(0)
+								payloadArg1 = payloadArg(1)
+								println("carrier sending PUT to roomstate")
+								forward("put", "put(${payloadArg0},${payloadArg1})" ,"roomstate" )
 						}
 					}
 					 transition( edgeName="goto",targetState="finalizeMove", cond=doswitch() )
@@ -136,6 +147,7 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								forward("setGoal", "setGoal(goto(${payloadArg(0)}))" ,"gotobehavior" ) 
 								planner.goto("${payloadArg(0)}")
+								payloadArg0 = payloadArg(0)
 						}
 					}
 					 transition(edgeName="t07",targetState="goto_onSuspend",cond=whenDispatch("suspend"))
@@ -162,7 +174,8 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 				}	 
 				state("goto_onGoalReached") { //this:State
 					action { //it:State
-						println("carrier: subgoal reached")
+						println("carrier sending GOTO to roomstate")
+						forward("goto", "goto($payloadArg0)" ,"roomstate" )
 					}
 					 transition( edgeName="goto",targetState="finalizeMove", cond=doswitch() )
 				}	 

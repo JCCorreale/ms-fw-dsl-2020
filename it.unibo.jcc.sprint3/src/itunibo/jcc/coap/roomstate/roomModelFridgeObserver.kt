@@ -34,6 +34,8 @@ object roomModelFridgeObserver : CoapHandler {
 		items.forEach({
 			actor.solve(" assert( at($it, fridge) ) ")
 		})
+		
+		roomModelResourceCoap.updateState()
 	}
 	
 	fun itemsList(content: String): List<String> {

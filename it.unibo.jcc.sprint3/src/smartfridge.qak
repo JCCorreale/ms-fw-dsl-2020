@@ -7,7 +7,7 @@ Dispatch put : put(Food)
 
 Context ctxFridge     ip [host="localhost" port=8095]  -mqtt
 
-QActor resourcemodel context ctxFridge {
+QActor fridgeresourcemodel context ctxFridge {
 	
 	State s0 initial {
 		solve( consult("fridgeContent.pl") )

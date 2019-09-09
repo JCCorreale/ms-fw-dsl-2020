@@ -22,21 +22,9 @@ class Workerinroom ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 		var Curmove     = "" 
 		var curmoveIsForward = false 
 		
-		var suspended = false
-		
-		var Tback = 0
-		
-		val Tretry = 1000L
-		val Nretry = 5
-		
-		var retryCount = 0
-		
-		var CurGoalX = ""
-		var CurGoalY = ""
-		
 		//REAL ROBOT
 		//var StepTime   = 1000 	 
-		//var PauseTime  = 500
+		//var PauseTime  = 500 
 		
 		//VIRTUAL ROBOT
 		var StepTime   = 330	//for virtual
@@ -53,47 +41,21 @@ class Workerinroom ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 							val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()  
 						forward("modelUpdate", "modelUpdate(roomMap,$MapStr)" ,"resourcemodel" ) 
 					}
-					 transition( edgeName="goto",targetState="waitGoal", cond=doswitch() )
-				}	 
-				state("waitGoal") { //this:State
-					action { //it:State
-						println("Waiting for goal...")
-					}
 					 transition(edgeName="setGoalT0",targetState="setGoal",cond=whenDispatch("setGoal"))
 				}	 
 				state("setGoal") { //this:State
 					action { //it:State
-						println("here in setGoal")
-						println("$name in ${currentState.stateName} | $currentMsg")
 						if( checkMsgContent( Term.createTerm("setGoal(X,Y)"), Term.createTerm("setGoal(X,Y)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								println("Received setGoal")
 								itunibo.planner.plannerUtil.setGoal( payloadArg(0), payloadArg(1)  )
 								itunibo.planner.moveUtils.doPlan(myself)
-								CurGoalX = payloadArg(0)
-								CurGoalY = payloadArg(1)
 						}
 					}
-					 transition( edgeName="goto",targetState="suspendOrExecute", cond=doswitch() )
-				}	 
-				state("suspendOrExecute") { //this:State
-					action { //it:State
-						stateTimer = TimerActor("timer_suspendOrExecute", 
-							scope, context!!, "local_tout_workerinroom_suspendOrExecute", 200.toLong() )
-					}
-					 transition(edgeName="checkSuspend1",targetState="executePlannedActions",cond=whenTimeout("local_tout_workerinroom_suspendOrExecute"))   
-					transition(edgeName="checkSuspend2",targetState="suspended",cond=whenDispatch("suspend"))
-				}	 
-				state("suspended") { //this:State
-					action { //it:State
-						forward("modelChange", "modelChange(robot,h)" ,"resourcemodel" ) 
-						println("suspended")
-					}
-					 transition(edgeName="resume3",targetState="executePlannedActions",cond=whenDispatch("resume"))
+					 transition( edgeName="goto",targetState="executePlannedActions", cond=doswitch() )
 				}	 
 				state("executePlannedActions") { //this:State
 					action { //it:State
-						solve("move(M)","") //set resVar	
+						solve("retract(move(M))","") //set resVar	
 						if(currentSolution.isSuccess()) { Curmove = getCurSol("M").toString() 
 						              curmoveIsForward=(Curmove == "w")
 						 }
@@ -110,9 +72,7 @@ class Workerinroom ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 						itunibo.planner.moveUtils.showCurrentRobotState(  )
 							val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()  
 						forward("modelUpdate", "modelUpdate(roomMap,$MapStr)" ,"resourcemodel" ) 
-						emit("goalReached", "goalReached" ) 
 					}
-					 transition( edgeName="goto",targetState="waitGoal", cond=doswitch() )
 				}	 
 				state("checkAndDoAction") { //this:State
 					action { //it:State
@@ -124,60 +84,26 @@ class Workerinroom ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 					action { //it:State
 						itunibo.planner.moveUtils.rotate(myself ,Curmove, PauseTime )
 					}
-					 transition( edgeName="goto",targetState="finalizeMove", cond=doswitch() )
+					 transition( edgeName="goto",targetState="executePlannedActions", cond=doswitch() )
 				}	 
 				state("doForwardMove") { //this:State
 					action { //it:State
 						delay(PauseTimeL)
 						itunibo.planner.moveUtils.attemptTomoveAhead(myself ,StepTime )
 					}
-					 transition(edgeName="t04",targetState="handleStepOk",cond=whenDispatch("stepOk"))
-					transition(edgeName="t05",targetState="hadleStepFail",cond=whenDispatch("stepFail"))
+					 transition(edgeName="t01",targetState="handleStepOk",cond=whenDispatch("stepOk"))
+					transition(edgeName="t02",targetState="hadleStepFail",cond=whenDispatch("stepFail"))
 				}	 
 				state("handleStepOk") { //this:State
 					action { //it:State
 						itunibo.planner.moveUtils.updateMapAfterAheadOk(myself)
 					}
-					 transition( edgeName="goto",targetState="finalizeMove", cond=doswitch() )
-				}	 
-				state("finalizeMove") { //this:State
-					action { //it:State
-						retryCount = 0
-						solve("retract(move(M))","") //set resVar	
-					}
-					 transition( edgeName="goto",targetState="suspendOrExecute", cond=doswitch() )
+					 transition( edgeName="goto",targetState="executePlannedActions", cond=doswitch() )
 				}	 
 				state("hadleStepFail") { //this:State
 					action { //it:State
-						if( checkMsgContent( Term.createTerm("stepFail(R,T)"), Term.createTerm("stepFail(Obs,Time)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								Tback=payloadArg(1).toString().toInt() / 2
-								println("stepFailed ${payloadArg(1).toString()}")
-						}
-						itunibo.planner.moveUtils.backToCompensate(myself ,Tback, PauseTime )
+						println("NEVER HERE!!!")
 					}
-					 transition( edgeName="goto",targetState="retry", cond=doswitchGuarded({(retryCount < Nretry)}) )
-					transition( edgeName="goto",targetState="replan", cond=doswitchGuarded({! (retryCount < Nretry)}) )
-				}	 
-				state("retry") { //this:State
-					action { //it:State
-						println("retry ${Curmove} in ${Tretry} ms")
-						retryCount++
-						stateTimer = TimerActor("timer_retry", 
-							scope, context!!, "local_tout_workerinroom_retry", Tretry )
-					}
-					 transition(edgeName="t06",targetState="suspendOrExecute",cond=whenTimeout("local_tout_workerinroom_retry"))   
-				}	 
-				state("replan") { //this:State
-					action { //it:State
-						println("replanning")
-						retryCount = 0
-						itunibo.planner.moveUtils.setObstacleOnCurrentDirection(myself)
-						itunibo.planner.plannerUtil.showMap(  )
-						solve("retractall(move(M))","") //set resVar	
-						forward("setGoal", "setGoal($CurGoalX,$CurGoalY)" ,"workerinroom" ) 
-					}
-					 transition(edgeName="t07",targetState="setGoal",cond=whenDispatch("setGoal"))
 				}	 
 			}
 		}

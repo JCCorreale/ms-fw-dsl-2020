@@ -3,6 +3,10 @@ Agent carrieragent ip [host="localhost" port=8042] -mqtt
 System {
 	mqttBroker "localhost" : 1883
 	
+	// To roomstate
+	Dispatch take : take(Item) // TODO Unify
+	Dispatch put : put(Item, Location)
+	
     Context ctxDummyForGotoBehavior   ip [host="otherresourcelocalhost" port=8035]   -mqtt
     Context ctxDummyForRoomState   ip [host="otherresourcelocalhost" port=8038]   -mqtt
 }
@@ -12,29 +16,56 @@ ExternalBehavior roomstate context ctxDummyForRoomState
 
 Behavior carrier planner itunibo.jcc.^planner.adapter.^CarrierPlannerAdapter {
 	
+	// TODO Workaround (pass to effects?)!
+	["
+	var payloadArg0 = \\\"\\\"
+	var payloadArg1 = \\\"\\\"
+	"]
+	
 	init {
 		// Set up planner according to the state of the room (subsequent updates will be done explicitly - for now)
 		run itunibo.jcc.coap.roomstate.carrierRoomStateClient.create(myself, ^planner)
 		run itunibo.jcc.coap.roomstate.carrierRoomStateClient.initPlanner()
 	}
 	
-	// TODO Update roomstate!
+	// TODO Put args in payloadArg0/payloadArg1 and use from effects
 	
 	action take(Item) {
-		println("carrier taking ${payloadArg(0)}")
 //		["planner.take(\"${payloadArg(0)}\"/*, \"butler\")*/"]
 		["planner.take(\"${payloadArg(0)}\")"]
+		["var butlerLocation = planner.getButlerLocationAsString()"]
+		["println(\"carrier taking ${payloadArg(0)} from $butlerLocation\")"]
+		["payloadArg0 = payloadArg(0)"] // TODO
+//		println("carrier taking ${payloadArg(0)}")+
+		println("carrier sending take(${payloadArg0},$butlerLocation) to roomstate")
+		["forward(\"take\", \"take(${payloadArg0},$butlerLocation)\" ,\"roomstate\" )"]
 	}
+//	onEffect(goalReached) { // TODO Workaround
+//		// TODO Get butler location in a better way
+//		["var butlerLocation = planner.getButlerLocationAsString()"]
+//		println("carrier sending take(${payloadArg0},$butlerLocation) to roomstate")
+//		["forward(\"take\", \"take(${payloadArg0},$butlerLocation)\" ,\"roomstate\" )"]
+//	}
 	
 	action put(Item,Location) {
 		println("carrier putting ${payloadArg(0)} in ${payloadArg(1)}")
 		["planner.put(\"${payloadArg(0)}\", \"${payloadArg(1)}\")"]
+		["payloadArg0 = payloadArg(0)"] // TODO
+		["payloadArg1 = payloadArg(1)"] // TODO
+		println("carrier sending PUT to roomstate")
+		["forward(\"put\", \"put(${payloadArg0},${payloadArg1})\" ,\"roomstate\" )"]
 	}
+//	onEffect(goalReached) { // TODO Workaround
+//		println("carrier sending PUT to roomstate")
+//		["forward(\"put\", \"put(${payloadArg0},${payloadArg1})\" ,\"roomstate\" )"]
+////		forward roomstate -m put : put($payloadArg(0), $payloadArg(1))
+//	}
 	
 	action goto(L) {
 		forward gotobehavior -m ^setGoal : ^setGoal(goto($payloadArg(0)))
 //		["planner.update(\"butler\", \"${payloadArg(0)}\")"]
 		["planner.goto(\"${payloadArg(0)}\")"]
+		["payloadArg0 = payloadArg(0)"] // TODO
 	}
 	// TODO Currently done "by hand", automatize
 	onEffect(suspend) {
@@ -46,7 +77,10 @@ Behavior carrier planner itunibo.jcc.^planner.adapter.^CarrierPlannerAdapter {
 	}
 	retry when "true" // TODO Syntax with no condition
 	onEffect(goalReached) { // TODO Workaround
-		println("carrier: subgoal reached")
+//		println("carrier: subgoal reached")
+		println("carrier sending GOTO to roomstate")
+		["forward(\"goto\", \"goto($payloadArg0)\" ,\"roomstate\" )"]
+//		forward roomstate -m goto : goto($payloadArg(0))
 	}
 	
 	onGoalReached {

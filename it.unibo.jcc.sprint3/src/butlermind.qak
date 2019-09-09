@@ -1,6 +1,6 @@
 System butlermind
 
-mqttBroker "localhost" : 1883    //192.168.1.18  192.168.43.229 
+mqttBroker "localhost" : 1883    //192.168.1.18  192.168.43.229
 
 // From the maitre
 Dispatch prepare : prepare
@@ -16,12 +16,13 @@ Dispatch goalReached : goalReached
 // To roomstate
 Dispatch take : take(Item, Location)
 Dispatch put : put(Item, Location)
+Dispatch goto : goto(Location)
 
 Context ctxButlermind     ip [host="localhost" port=8105]  -mqtt
 Context ctxDummyForFridge     ip [host="localhost" port=8095]  -mqtt
 Context ctxDummyForCarrier     ip [host="localhost" port=8042]  -mqtt
 
-ExternalQActor resourcemodel context ctxDummyForFridge // FRIDGE resource model!
+ExternalQActor fridgeresourcemodel context ctxDummyForFridge // FRIDGE resource model!
 
 ExternalQActor carrierbehavior context ctxDummyForCarrier
 
@@ -40,78 +41,54 @@ QActor roomstate context ctxButlermind {
 	State waitModelChange{ }
 	Transition t0 whenMsg take -> updateModel
 			 	  whenMsg put -> updateModel
-//	              whenMsg modelUpdate -> updateModel
+	              whenMsg goto -> updateModel
+
+	// TODO at(Item, butler) when carried?
 
 	State updateModel{
 		printCurrentMessage
 		// TODO
 		onMsg( take : take(Item, Location) ) {
-			if "payloadArg(1) == \"fridge\""  { 			
-				// TODO Update via COAP
-				forward resourcemodel -m take : take($payloadArg(0))
+			if "payloadArg(1) == \"fridge\""  {	
+				// TODO Update via COAP?
+				forward fridgeresourcemodel -m take : take($payloadArg(0)) // FRIDGE resource model!
 			}
 			else {
 				solve( retract( at( $payloadArg(0), $payloadArg(1) ) ) )
 				ifSolved {
-	//				run itunibo.jcc.coap.fridge.fridgeResourceCoap.resourceCoap.updateState()
+					run itunibo.jcc.coap.roomstate.roomModelResourceCoap.updateState()
 				}
 				else {
 					println("*** Can't take non-existing content! ***")
 				}
-				// TODO Update COAP resource
-				//run itunibo.robot.resourceModelSupport.updateRobotModel( myself, payloadArg(1) )
 			}
-			solve( showContent )
 		}
 		onMsg( put : put(Item, Location) ) {
 			if "payloadArg(1) == \"fridge\""  { 				
-				// TODO Update via COAP
-				forward resourcemodel -m put : put($payloadArg(0))
+				// TODO Update via COAP?
+				forward fridgeresourcemodel -m put : put($payloadArg(0)) // FRIDGE resource model!
 			}
 			else {
 				solve( assert( at( $payloadArg(0), $payloadArg(1) ) ) )
 				// Always solved
 				ifSolved {
-	//				run itunibo.jcc.coap.fridge.fridgeResourceCoap.resourceCoap.updateState()
+					run itunibo.jcc.coap.roomstate.roomModelResourceCoap.updateState()
 				}
-				// TODO Update COAP resource
-				//run itunibo.robot.resourceModelSupport.updateRobotModel( myself, payloadArg(1) )	
 			}
-			solve( showContent )
 		}
+		onMsg( goto : goto(Location) ) { // TODO Untested
+			ifSolved {
+				solve( retract( at( butler, X ) ) )
+				solve( assert( at( butler, $payloadArg(0) ) ) )
+			}
+		}
+		
+		solve( showContent )
 	}
     Goto  waitModelChange
-
-//
-//	State updateModel{  
-//		printCurrentMessage
-//		onMsg( modelUpdate : modelUpdate(robot,V ) ) {
-//			run itunibo.robot.resourceModelSupport.updateRobotModel( myself, payloadArg(1) )
-//		}
-//		onMsg( modelUpdate : modelUpdate(sonarRobot,V ) ) {
-//			run itunibo.robot.resourceModelSupport.updateSonarRobotModel( myself, payloadArg(1) )
-//		}
-//		onMsg( modelUpdate : modelUpdate(roomMap,V ) ) {  //JULY19
-//			println("modelUpdate roomMap  ")
-//			run itunibo.robot.resourceModelSupport.updateRoomMapModel( myself, payloadArg(1) )
-//		}
-//	} 
-//    Goto  waitModelChange
-//    
-//	State changeModel{  
-//		//printCurrentMessage 
-//		//ROBOT MOVE
-//		onMsg( modelChange : modelChange( robot,V ) ) { // V= w | ...
-//			run itunibo.robot.resourceModelSupport.updateRobotModel( myself, payloadArg(1) )
-//			emit local_modelChanged : modelChanged(  robot,  $payloadArg(1))  //for the robotmind
-//		} 
-//		//SONAR DATA  
-////		onMsg( modelChange : modelChange( sonarRobot,V ) ) { // V= w | ...
-////			run itunibo.robot.resourceModelSupport.updateSonarRobotModel( myself, payloadArg(1) )
-////		}
-//	}  
-//	Goto  waitModelChange
 }
+
+// TODO Update roomstate from carrier!
 
 QActor butlermind context ctxButlermind {
 	State s0 initial {

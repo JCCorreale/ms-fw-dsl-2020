@@ -25,7 +25,7 @@ fun main() = runBlocking {
 	
 	delay(5000)
 	
-	fridgeResourceModel = sysUtil.getActor("resourcemodel")
+	fridgeResourceModel = sysUtil.getActor("fridgeresourcemodel")
 	
 	// Put content
 	MsgUtil.sendMsg("put","put(sausage)",fridgeResourceModel!!)

@@ -28,7 +28,23 @@ class roomModelResourceCoap (name : String ) : CoapResource(name) {
 			println("--------------------------------------------------")
 			server.start();
 //			resourceModelSupport.setCoapResource(resourceCoap)  //Injects a reference
- 		}		
+		}
+		
+		fun updateState() {
+	// 		actor.solve("model( actuator, robot, state(STATE) )")
+	//		curmodelval = actor.getCurSol("STATE").toString()
+	//		curmodelval = modelitem
+			//println("%%%%%%%%%%%%%%%% updateState from $curState to $curmodelval" )
+			resourceCoap.changed()	// notify all CoAp observers		
+	        	/*
+	        	 * Notifies all CoAP clients that have established an observe relation with
+	        	 * this resource that the state has changed by reprocessing their original
+	        	 * request that has established the relation. The notification is done by
+	        	 * the executor of this resource or on the executor of its parent or
+	        	 * transitively ancestor. If no ancestor defines its own executor, the
+	        	 * thread that has called this method performs the notification.
+	        	 */
+		}
 	}
 	
 	init{ 
@@ -38,22 +54,6 @@ class roomModelResourceCoap (name : String ) : CoapResource(name) {
 		setObservable(true) 				// enable observing	!!!!!!!!!!!!!!
 		setObserveType(Type.CON)			// configure the notification type to CONs
 		//getAttributes().setObservable();	// mark observable in the Link-Format			
-	}
-	
-	fun updateState() {
-// 		actor.solve("model( actuator, robot, state(STATE) )")
-//		curmodelval = actor.getCurSol("STATE").toString()
-//		curmodelval = modelitem
-		//println("%%%%%%%%%%%%%%%% updateState from $curState to $curmodelval" )
-		changed()	// notify all CoAp observers		
-        	/*
-        	 * Notifies all CoAP clients that have established an observe relation with
-        	 * this resource that the state has changed by reprocessing their original
-        	 * request that has established the relation. The notification is done by
-        	 * the executor of this resource or on the executor of its parent or
-        	 * transitively ancestor. If no ancestor defines its own executor, the
-        	 * thread that has called this method performs the notification.
-        	 */
 	}
 	 
 	override fun handleGET(exchange: CoapExchange?) {
