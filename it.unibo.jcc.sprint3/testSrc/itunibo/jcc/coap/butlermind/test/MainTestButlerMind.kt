@@ -28,9 +28,14 @@ fun main() = runBlocking {
 	}
 	
 	// Give time to launch all "agents"
-	delay(12000)
+	delay(15000)
 	
 	butlerMind = sysUtil.getActor("butlermind")
+	
+	suspendResumeGui.create(butlerMind!!)
+	
+	
+	delay(5000)
 	
 	println(" %%%%%%% MainTestButlerMind PREPARE")
 	MsgUtil.sendMsg("prepare","prepare", butlerMind!!)
