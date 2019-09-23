@@ -1,4 +1,4 @@
-package it.unibo.jcc.coap.fridge.client
+package itunibo.jcc.coap.fridge.client
 
 import org.eclipse.californium.core.CoapClient
 import org.eclipse.californium.core.coap.MediaTypeRegistry
@@ -23,13 +23,14 @@ class MyCoapClient(serverAddr: String, port: Int, resourceName: String?) {
 		coapClient.setURI(baseUri)
 	}
 	
-	fun synchGet() { //Synchronously send the GET message (blocking call)
+	fun synchGet() : String { //Synchronously send the GET message (blocking call)
 		println("%%% synchGet ")
 	//		CoapResponse coapResp = coapClient.advanced(request);
 		val coapResp = coapClient.get()
 	//The "CoapResponse" message contains the response.
 		//println(Utils.prettyPrint(coapResp))
 		println(coapResp.responseText)
+		return coapResp.responseText
 	}
 	
 //	fun put(v: String) {

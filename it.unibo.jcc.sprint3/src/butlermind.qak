@@ -4,6 +4,7 @@ mqttBroker "localhost" : 1883    //192.168.1.18  192.168.43.229
 
 // From the maitre
 Dispatch prepare : prepare
+Dispatch addFood : addFood(Food)
 Dispatch stop : stop
 Dispatch reactivate : reactivate
 
@@ -106,6 +107,7 @@ QActor butlermind context ctxButlermind {
 	 
 	State waitCommand{ }
 	Transition t0 whenMsg prepare -> doPrepare
+				  whenMsg addFood -> doAddFood
 				  whenMsg stop -> suspend // TODO Workaround
 
 	State doPrepare{
@@ -117,6 +119,26 @@ QActor butlermind context ctxButlermind {
 		forward carrierbehavior -m setGoal : setGoal( at(caviar, table) )
 		forward carrierbehavior -m setGoal : setGoal( at(dishes, table) )
 		forward carrierbehavior -m setGoal : setGoal( at(butler, home) )
+	}
+	Goto handleSuspendResume
+	
+	State doAddFood {
+		onMsg (addFood : addFood(Food)) {
+			// Check if food is in fridge
+			["val client = itunibo.jcc.coap.fridge.client.MyCoapClient(\"localhost\", 5684, \"fridgeresource\")"]
+			["client.setUriParams(payloadArg(0))"]
+			["val qty = Integer.parseInt(client.synchGet())"]
+			["if (qty == 0)"]
+			["{"]
+				// TODO Send error to butler (request/response?)
+				println("butlermind | food not present in fridge!")
+			["}"]
+			["else"]
+			["{"]
+				forward carrierbehavior -m setGoal : setGoal( at($payloadArg(0), table) )
+				forward carrierbehavior -m setGoal : setGoal( at(butler, home) )
+			["}"]
+		}
 	}
 	Goto handleSuspendResume
 	

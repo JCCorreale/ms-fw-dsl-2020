@@ -37,8 +37,13 @@ fun main() = runBlocking {
 	
 	delay(5000)
 	
-	println(" %%%%%%% MainTestButlerMind PREPARE")
-	MsgUtil.sendMsg("prepare","prepare", butlerMind!!)
+//	println(" %%%%%%% MainTestButlerMind PREPARE")
+//	MsgUtil.sendMsg("prepare","prepare", butlerMind!!)
+	
+	// TODO Stop/reactivate not working!
+	
+	println(" %%%%%%% MainTestButlerMind addFood(salmon)")
+	MsgUtil.sendMsg("addFood","addFood(salmon)", butlerMind!!)
 	
 //	delay(5000)
 //	

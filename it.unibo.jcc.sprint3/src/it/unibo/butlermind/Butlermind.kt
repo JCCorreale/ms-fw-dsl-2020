@@ -25,7 +25,8 @@ class Butlermind ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, 
 					action { //it:State
 					}
 					 transition(edgeName="t03",targetState="doPrepare",cond=whenDispatch("prepare"))
-					transition(edgeName="t04",targetState="suspend",cond=whenDispatch("stop"))
+					transition(edgeName="t04",targetState="doAddFood",cond=whenDispatch("addFood"))
+					transition(edgeName="t05",targetState="suspend",cond=whenDispatch("stop"))
 				}	 
 				state("doPrepare") { //this:State
 					action { //it:State
@@ -36,19 +37,39 @@ class Butlermind ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, 
 					}
 					 transition( edgeName="goto",targetState="handleSuspendResume", cond=doswitch() )
 				}	 
+				state("doAddFood") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("addFood(Food)"), Term.createTerm("addFood(Food)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								val client = itunibo.jcc.coap.fridge.client.MyCoapClient("localhost", 5684, "fridgeresource")
+								client.setUriParams(payloadArg(0))
+								val qty = Integer.parseInt(client.synchGet())
+								if (qty == 0)
+								{
+								println("butlermind | food not present in fridge!")
+								}
+								else
+								{
+								forward("setGoal", "setGoal(at(${payloadArg(0)},table))" ,"carrierbehavior" ) 
+								forward("setGoal", "setGoal(at(butler,home))" ,"carrierbehavior" ) 
+								}
+						}
+					}
+					 transition( edgeName="goto",targetState="handleSuspendResume", cond=doswitch() )
+				}	 
 				state("handleSuspendResume") { //this:State
 					action { //it:State
 						println("butlermind | handleSuspendResume")
 					}
-					 transition(edgeName="t05",targetState="waitCommand",cond=whenEvent("goalReached"))
-					transition(edgeName="t06",targetState="suspend",cond=whenDispatch("stop"))
+					 transition(edgeName="t06",targetState="waitCommand",cond=whenEvent("goalReached"))
+					transition(edgeName="t07",targetState="suspend",cond=whenDispatch("stop"))
 				}	 
 				state("suspend") { //this:State
 					action { //it:State
 						println("butlermind | suspend")
 						forward("suspend", "suspend" ,"carrierbehavior" ) 
 					}
-					 transition(edgeName="t07",targetState="resume",cond=whenDispatch("reactivate"))
+					 transition(edgeName="t08",targetState="resume",cond=whenDispatch("reactivate"))
 				}	 
 				state("resume") { //this:State
 					action { //it:State

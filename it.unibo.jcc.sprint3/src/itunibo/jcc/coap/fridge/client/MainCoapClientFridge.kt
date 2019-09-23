@@ -16,7 +16,7 @@ import itunibo.coap.observer.AsynchListener
 
 		val resourceName = "fridgeresource"
 		//createClient("localhost", 5684, resourceName)
-		val client = it.unibo.jcc.coap.fridge.client.MyCoapClient(hostAddr, 5684, resourceName)
+		val client = itunibo.jcc.coap.fridge.client.MyCoapClient(hostAddr, 5684, resourceName)
 
 		// List all contents
 		client.synchGet()
