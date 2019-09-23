@@ -22,12 +22,16 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 		
 		var CurGoal = ""
 		
+		var GoalSender = ""
+		
 		//var CurGoalX = ""
 		//var CurGoalY = ""
 		
 		
 			var payloadArg0 = ""
 			var payloadArg1 = ""
+		
+		    var suspendedGoto = false
 		
 		// From Planner declaration
 		val planner = itunibo.jcc.planner.adapter.CarrierPlannerAdapter()
@@ -54,6 +58,7 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 								println("Received setGoal")
 								planner.planGoal(myself, payloadArg(0))
 								CurGoal = payloadArg(0)
+								GoalSender = currentMsg.msgSender()
 						}
 					}
 					 transition( edgeName="goto",targetState="suspendOrExecute", cond=doswitch() )
@@ -91,7 +96,7 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 				}	 
 				state("goalOk") { //this:State
 					action { //it:State
-						emit("goalReached", "goalReached" ) 
+						forward("goalReached", "goalReached", GoalSender)
 					}
 					 transition( edgeName="goto",targetState="waitGoal", cond=doswitch() )
 				}	 
@@ -117,6 +122,7 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("take(Item)"), Term.createTerm("take(Item)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
+								println("$name in ${currentState.stateName} | $currentMsg")
 								planner.take("${payloadArg(0)}")
 								var butlerLocation = planner.getButlerLocationAsString()
 								println("carrier taking ${payloadArg(0)} from $butlerLocation")
@@ -131,6 +137,7 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("put(Item,Location)"), Term.createTerm("put(Item,Location)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
+								println("$name in ${currentState.stateName} | $currentMsg")
 								println("carrier putting ${payloadArg(0)} in ${payloadArg(1)}")
 								planner.put("${payloadArg(0)}", "${payloadArg(1)}")
 								payloadArg0 = payloadArg(0)
@@ -145,9 +152,13 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("goto(L)"), Term.createTerm("goto(L)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
+								if (!suspendedGoto)
+								{
+								println("$name in ${currentState.stateName} | $currentMsg")
 								forward("setGoal", "setGoal(goto(${payloadArg(0)}))" ,"gotobehavior" ) 
 								planner.goto("${payloadArg(0)}")
 								payloadArg0 = payloadArg(0)
+								}
 						}
 					}
 					 transition(edgeName="t07",targetState="goto_onSuspend",cond=whenDispatch("suspend"))
@@ -156,7 +167,7 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 				}	 
 				state("goto_onSuspend") { //this:State
 					action { //it:State
-						forward("suspend", "suspend" ,"gotobehavior" ) 
+						forward("suspend", "suspend" ,"movebehavior" ) 
 						if (true) {
 						forward("retry", "retry" ,"carrierbehavior" ) 
 						}
@@ -165,7 +176,7 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 				}	 
 				state("goto_onResume") { //this:State
 					action { //it:State
-						forward("resume", "resume" ,"gotobehavior" ) 
+						forward("resume", "resume" ,"movebehavior" ) 
 						if (true) {
 						forward("retry", "retry" ,"carrierbehavior" ) 
 						}
@@ -174,13 +185,16 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 				}	 
 				state("goto_onGoalReached") { //this:State
 					action { //it:State
+						println("$name in ${currentState.stateName} | $currentMsg")
 						println("carrier sending GOTO to roomstate")
 						forward("goto", "goto($payloadArg0)" ,"roomstate" )
+						suspendedGoto = false
 					}
 					 transition( edgeName="goto",targetState="finalizeMove", cond=doswitch() )
 				}	 
 				state("goto_retry") { //this:State
 					action { //it:State
+						suspendedGoto = true
 					}
 					 transition( edgeName="goto",targetState="suspendOrExecute", cond=doswitch() )
 				}	 

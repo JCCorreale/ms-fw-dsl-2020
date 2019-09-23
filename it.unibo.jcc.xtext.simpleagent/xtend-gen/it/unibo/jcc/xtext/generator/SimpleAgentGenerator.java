@@ -186,6 +186,9 @@ public class SimpleAgentGenerator extends AbstractGenerator {
     _builder.append("var CurGoal = \\\"\\\"");
     _builder.newLine();
     _builder.newLine();
+    _builder.append("var GoalSender = \\\"\\\"");
+    _builder.newLine();
+    _builder.newLine();
     _builder.append("//var CurGoalX = \\\"\\\"");
     _builder.newLine();
     _builder.append("//var CurGoalY = \\\"\\\"");
@@ -292,6 +295,9 @@ public class SimpleAgentGenerator extends AbstractGenerator {
     _builder.newLine();
     _builder.append("  \t\t\t");
     _builder.append("[\"CurGoal = payloadArg(0)\"]");
+    _builder.newLine();
+    _builder.append("  \t\t\t");
+    _builder.append("[\"GoalSender = currentMsg.msgSender()\"]");
     _builder.newLine();
     _builder.append("  \t\t\t");
     _builder.append("//[\"CurGoalX = payloadArg(0)\"]");
@@ -450,7 +456,10 @@ public class SimpleAgentGenerator extends AbstractGenerator {
     _builder.append("\t \t");
     _builder.newLine();
     _builder.append("\t \t");
-    _builder.append("emit goalReached : goalReached");
+    _builder.append("//emit goalReached : goalReached");
+    _builder.newLine();
+    _builder.append("\t \t");
+    _builder.append("[\"forward(\\\"goalReached\\\", \\\"goalReached\\\", GoalSender)\"]");
     _builder.newLine();
     _builder.append(" \t");
     _builder.append("}");

@@ -18,14 +18,18 @@ Context ctxDummy ip [host="otherresourcelocalhost" port=8035] -mqtt
 ExternalQActor movebehavior context ctxDummy
 QActor gotobehavior context ctxGotoagent {
 ["
+
 var Curmove     = \"\" 
 var suspended = false
 
 var CurGoal = \"\"
 
+var GoalSender = \"\"
+
 //var CurGoalX = \"\"
 //var CurGoalY = \"\"
 
+var GoalLocation = \"\" 
 
 // From Planner declaration
 val planner = itunibo.jcc.planner.adapter.GotoPlannerAdapter()
@@ -56,6 +60,7 @@ val planner = itunibo.jcc.planner.adapter.GotoPlannerAdapter()
   			//run itunibo.planner.moveUtils.doPlan( myself )
   			// To allow replanning
   			["CurGoal = payloadArg(0)"]
+  			["GoalSender = currentMsg.msgSender()"]
   			//["CurGoalX = payloadArg(0)"]
   			//["CurGoalY = payloadArg(1)"]
  			//solve( dialog(F) )
@@ -101,7 +106,8 @@ val planner = itunibo.jcc.planner.adapter.GotoPlannerAdapter()
 	 	//["	val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()  "]
 	 	//forward resourcemodel -m modelUpdate : modelUpdate(roomMap,$MapStr)
 	 	
-	 	emit goalReached : goalReached
+	 	//emit goalReached : goalReached
+	 	["forward(\"goalReached\", \"goalReached\", GoalSender)"]
  	}
  	Goto waitGoal
  	
@@ -123,7 +129,7 @@ val planner = itunibo.jcc.planner.adapter.GotoPlannerAdapter()
 	State goto {
 		onMsg(goto : goto(L)) { // TODO Better handling of multiple actions!
 			// from "agent" code
-			println("gotobehavior: ${payloadArg(0)}") println("location( ${payloadArg(0)}, Pos )") solve( location( $payloadArg(0), Pos ) ) println("after solve ${getCurSol(\"Pos\")}") forward movebehavior -m setGoal : setGoal(#Pos)
+			println("gotobehavior: ${payloadArg(0)}") println("location( ${payloadArg(0)}, Pos )") solve( location( $payloadArg(0), Pos ) ) println("after solve ${getCurSol(\"Pos\")}") forward movebehavior -m setGoal : setGoal(#Pos) ["GoalLocation = payloadArg(0)"]
 		}
 	}
 	Transition t0
@@ -156,9 +162,8 @@ val planner = itunibo.jcc.planner.adapter.GotoPlannerAdapter()
 		whenMsg retry  -> goto_retry // TODO Handles only one compensation per ACTION (on a single Effect)!!!
 	State goto_onGoalReached{ // TODO HANDLE MESSAGE NAMES BETTER!!!
 		// from "agent" code
-		println("gotobehavior: subgoal reached")
+		println("gotobehavior: subgoal reached") ["planner.update(GoalLocation)"]
 		// TODO Check consistency with QActor guarded transitions policy
-		["planner.update(\"${payloadArg(0)}\")"]
 	}
 	Goto finalizeMove
 	

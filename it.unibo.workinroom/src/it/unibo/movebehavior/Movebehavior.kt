@@ -22,6 +22,8 @@ class Movebehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 		
 		var CurGoal = ""
 		
+		var GoalSender = ""
+		
 		//var CurGoalX = ""
 		//var CurGoalY = ""
 		
@@ -77,6 +79,7 @@ class Movebehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 								println("Received setGoal")
 								planner.planGoal(myself, payloadArg(0))
 								CurGoal = payloadArg(0)
+								GoalSender = currentMsg.msgSender()
 						}
 					}
 					 transition( edgeName="goto",targetState="suspendOrExecute", cond=doswitch() )
@@ -119,7 +122,7 @@ class Movebehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 						itunibo.planner.moveUtils.showCurrentRobotState(  )
 							val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()  
 						forward("modelUpdate", "modelUpdate(roomMap,$MapStr)" ,"resourcemodel" ) 
-						emit("goalReached", "goalReached" ) 
+						forward("goalReached", "goalReached", GoalSender)
 					}
 					 transition( edgeName="goto",targetState="waitGoal", cond=doswitch() )
 				}	 

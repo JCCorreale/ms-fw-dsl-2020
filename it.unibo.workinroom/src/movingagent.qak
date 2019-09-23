@@ -33,6 +33,8 @@ var suspended = false
 
 var CurGoal = \"\"
 
+var GoalSender = \"\"
+
 //var CurGoalX = \"\"
 //var CurGoalY = \"\"
 
@@ -88,6 +90,7 @@ val planner = itunibo.jcc.planner.adapter.MovePlannerAdapter()
   			//run itunibo.planner.moveUtils.doPlan( myself )
   			// To allow replanning
   			["CurGoal = payloadArg(0)"]
+  			["GoalSender = currentMsg.msgSender()"]
   			//["CurGoalX = payloadArg(0)"]
   			//["CurGoalY = payloadArg(1)"]
  			//solve( dialog(F) )
@@ -135,7 +138,8 @@ val planner = itunibo.jcc.planner.adapter.MovePlannerAdapter()
 	 	//["	val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()  "]
 	 	//forward resourcemodel -m modelUpdate : modelUpdate(roomMap,$MapStr)
 	 	
-	 	emit goalReached : goalReached
+	 	//emit goalReached : goalReached
+	 	["forward(\"goalReached\", \"goalReached\", GoalSender)"]
  	}
  	Goto waitGoal
  	

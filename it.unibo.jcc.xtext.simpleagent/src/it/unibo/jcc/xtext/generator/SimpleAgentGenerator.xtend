@@ -89,6 +89,8 @@ class SimpleAgentGenerator extends AbstractGenerator {
 
 		var CurGoal = \"\"
 		
+		var GoalSender = \"\"
+		
 		//var CurGoalX = \"\"
 		//var CurGoalY = \"\"
 		
@@ -127,6 +129,7 @@ class SimpleAgentGenerator extends AbstractGenerator {
 		  			//run itunibo.planner.moveUtils.doPlan( myself )
 		  			// To allow replanning
 		  			["CurGoal = payloadArg(0)"]
+		  			["GoalSender = currentMsg.msgSender()"]
 		  			//["CurGoalX = payloadArg(0)"]
 		  			//["CurGoalY = payloadArg(1)"]
 		 			//solve( dialog(F) )
@@ -181,7 +184,8 @@ class SimpleAgentGenerator extends AbstractGenerator {
 			 	//["	val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()  "]
 			 	//forward resourcemodel -m modelUpdate : modelUpdate(roomMap,$MapStr)
 			 	
-			 	emit goalReached : goalReached
+			 	//emit goalReached : goalReached
+			 	["forward(\"goalReached\", \"goalReached\", GoalSender)"]
 		 	}
 		 	Goto waitGoal
 		 	

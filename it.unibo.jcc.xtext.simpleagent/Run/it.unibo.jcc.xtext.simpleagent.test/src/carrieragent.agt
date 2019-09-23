@@ -7,10 +7,12 @@ System {
 	Dispatch take : take(Item) // TODO Unify
 	Dispatch put : put(Item, Location)
 	
+	Context ctxDummyForMoveBehavior   ip [host="otherresourcelocalhost" port=8032]   -mqtt
     Context ctxDummyForGotoBehavior   ip [host="otherresourcelocalhost" port=8035]   -mqtt
     Context ctxDummyForRoomState   ip [host="otherresourcelocalhost" port=8038]   -mqtt
 }
 
+ExternalBehavior movebehavior context ctxDummyForMoveBehavior // TODO Behaviors as actors (check name consistency internal/external)
 ExternalBehavior gotobehavior context ctxDummyForGotoBehavior // TODO Behaviors as actors (check name consistency internal/external)
 ExternalBehavior roomstate context ctxDummyForRoomState
 
@@ -20,6 +22,8 @@ Behavior carrier planner itunibo.jcc.^planner.adapter.^CarrierPlannerAdapter {
 	["
 	var payloadArg0 = \\\"\\\"
 	var payloadArg1 = \\\"\\\"
+
+    var suspendedGoto = false
 	"]
 	
 	init {
@@ -31,6 +35,7 @@ Behavior carrier planner itunibo.jcc.^planner.adapter.^CarrierPlannerAdapter {
 	// TODO Put args in payloadArg0/payloadArg1 and use from effects
 	
 	action take(Item) {
+		printCurrentMessage
 //		["planner.take(\"${payloadArg(0)}\"/*, \"butler\")*/"]
 		["planner.take(\"${payloadArg(0)}\")"]
 		["var butlerLocation = planner.getButlerLocationAsString()"]
@@ -48,6 +53,7 @@ Behavior carrier planner itunibo.jcc.^planner.adapter.^CarrierPlannerAdapter {
 //	}
 	
 	action put(Item,Location) {
+		printCurrentMessage
 		println("carrier putting ${payloadArg(0)} in ${payloadArg(1)}")
 		["planner.put(\"${payloadArg(0)}\", \"${payloadArg(1)}\")"]
 		["payloadArg0 = payloadArg(0)"] // TODO
@@ -62,25 +68,35 @@ Behavior carrier planner itunibo.jcc.^planner.adapter.^CarrierPlannerAdapter {
 //	}
 	
 	action goto(L) {
-		forward gotobehavior -m ^setGoal : ^setGoal(goto($payloadArg(0)))
-//		["planner.update(\"butler\", \"${payloadArg(0)}\")"]
-		["planner.goto(\"${payloadArg(0)}\")"]
-		["payloadArg0 = payloadArg(0)"] // TODO
+		["if (!suspendedGoto)"]
+		["{"]
+			printCurrentMessage
+			forward gotobehavior -m ^setGoal : ^setGoal(goto($payloadArg(0)))
+	//		["planner.update(\"butler\", \"${payloadArg(0)}\")"]
+			["planner.goto(\"${payloadArg(0)}\")"]
+			["payloadArg0 = payloadArg(0)"] // TODO
+		["}"]
 	}
 	// TODO Currently done "by hand", automatize
 	onEffect(suspend) {
-		forward gotobehavior -m suspend : suspend
+		forward movebehavior -m suspend : suspend
+//		forward gotobehavior -m suspend : suspend
 	}
-	retry when "true" // TODO Syntax with no condition
+	retry when "true" { // TODO Syntax with no condition
+		["suspendedGoto = true"]
+	}
 	onEffect(resume) {
-		forward gotobehavior -m resume : resume
+		forward movebehavior -m resume : resume
+//		forward gotobehavior -m resume : resume
 	}
 	retry when "true" // TODO Syntax with no condition
 	onEffect(goalReached) { // TODO Workaround
+		printCurrentMessage
 //		println("carrier: subgoal reached")
 		println("carrier sending GOTO to roomstate")
 		["forward(\"goto\", \"goto($payloadArg0)\" ,\"roomstate\" )"]
 //		forward roomstate -m goto : goto($payloadArg(0))
+		["suspendedGoto = false"]
 	}
 	
 	onGoalReached {

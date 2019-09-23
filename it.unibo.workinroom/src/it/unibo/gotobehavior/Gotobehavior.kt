@@ -16,14 +16,18 @@ class Gotobehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 		
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		
+		
 		var Curmove     = "" 
 		var suspended = false
 		
 		var CurGoal = ""
 		
+		var GoalSender = ""
+		
 		//var CurGoalX = ""
 		//var CurGoalY = ""
 		
+		var GoalLocation = "" 
 		
 		// From Planner declaration
 		val planner = itunibo.jcc.planner.adapter.GotoPlannerAdapter()
@@ -50,6 +54,7 @@ class Gotobehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 								println("Received setGoal")
 								planner.planGoal(myself, payloadArg(0))
 								CurGoal = payloadArg(0)
+								GoalSender = currentMsg.msgSender()
 						}
 					}
 					 transition( edgeName="goto",targetState="suspendOrExecute", cond=doswitch() )
@@ -87,7 +92,7 @@ class Gotobehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 				}	 
 				state("goalOk") { //this:State
 					action { //it:State
-						emit("goalReached", "goalReached" ) 
+						forward("goalReached", "goalReached", GoalSender)
 					}
 					 transition( edgeName="goto",targetState="waitGoal", cond=doswitch() )
 				}	 
@@ -102,7 +107,7 @@ class Gotobehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 					 transition(edgeName="t04",targetState="goto",cond=whenDispatch("goto"))
 				}	 
 				state("goto") { //this:State
-					action { //it:State
+					action { //it:State 
 						if( checkMsgContent( Term.createTerm("goto(L)"), Term.createTerm("goto(L)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								println("gotobehavior: ${payloadArg(0)}")
@@ -110,6 +115,7 @@ class Gotobehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 								solve("location(${payloadArg(0)},Pos)","") //set resVar	
 								println("after solve ${getCurSol("Pos")}")
 								forward("setGoal", "setGoal(${getCurSol("Pos").toString()})" ,"movebehavior" ) 
+								GoalLocation = payloadArg(0)
 						}
 					}
 					 transition(edgeName="t05",targetState="goto_onSuspend",cond=whenDispatch("suspend"))
@@ -137,7 +143,7 @@ class Gotobehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 				state("goto_onGoalReached") { //this:State
 					action { //it:State
 						println("gotobehavior: subgoal reached")
-						planner.update("${payloadArg(0)}")
+						planner.update(GoalLocation)
 					}
 					 transition( edgeName="goto",targetState="finalizeMove", cond=doswitch() )
 				}	 

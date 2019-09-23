@@ -10,6 +10,8 @@ ExternalBehavior movebehavior context ctxDummy // TODO Behaviors as actors (chec
 
 Behavior goto planner itunibo.jcc.^planner.adapter.^GotoPlannerAdapter {
 	
+	["var GoalLocation = \\\"\\\" "]
+	
 	init {
 		/* location(table, pos(x,y)) */
 		solve( consult("locations.pl") ) 
@@ -25,6 +27,7 @@ Behavior goto planner itunibo.jcc.^planner.adapter.^GotoPlannerAdapter {
 //		["forward(\"setGoal\", \"setGoal(${getCurSol(\"Pos\")})\" ,\"movebehavior\" )"] // TODO Workaround forward?
 		
 		forward movebehavior -m ^setGoal : ^setGoal(#Pos)
+		["GoalLocation = payloadArg(0)"]
 		
 //		println("gotobehavior: ${payloadArg(0)}")
 //		solve( location( payloadArg(0), Position ) )
@@ -42,6 +45,7 @@ Behavior goto planner itunibo.jcc.^planner.adapter.^GotoPlannerAdapter {
 	retry when "true" // TODO Syntax with no condition
 	onEffect(goalReached) { // TODO Workaround
 		println("gotobehavior: subgoal reached")
+		["planner.update(GoalLocation)"]
 	}
 	
 	onGoalReached {
