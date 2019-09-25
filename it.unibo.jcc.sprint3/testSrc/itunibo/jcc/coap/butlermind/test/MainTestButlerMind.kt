@@ -36,11 +36,20 @@ fun main() = runBlocking {
 	
 	delay(5000)
 	
+	// PREPARE
+	
 //	println(" %%%%%%% MainTestButlerMind PREPARE")
 //	MsgUtil.sendMsg("prepare","prepare", butlerMind!!)
 	
-	println(" %%%%%%% MainTestButlerMind addFood(salmon)")
-	MsgUtil.sendMsg("addFood","addFood(salmon)", butlerMind!!)
+	// ADD FOOD
+	
+	println(" %%%%%%% MainTestButlerMind addFood(pizza)")
+	MsgUtil.sendMsg("addFood","addFood(pizza)", butlerMind!!)
+	
+	// ADD FOOD ERROR
+	
+//	println(" %%%%%%% MainTestButlerMind addFood(olives)")
+//	MsgUtil.sendMsg("addFood","addFood(olives)", butlerMind!!)
 	
 //	delay(5000)
 //	
