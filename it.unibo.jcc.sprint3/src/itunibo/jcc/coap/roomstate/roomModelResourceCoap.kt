@@ -57,7 +57,20 @@ class roomModelResourceCoap (name : String ) : CoapResource(name) {
 	}
 	 
 	override fun handleGET(exchange: CoapExchange?) {
-		exchange!!.respond(ResponseCode.CONTENT, listAllContents(), MediaTypeRegistry.TEXT_PLAIN)
+		val uriPath = exchange?.getRequestOptions()?.uriPath;
+		
+        // check if there is a sub-resource given, and if so use it for processing
+        if (uriPath!!.size > 1) {
+			exchange!!.respond(ResponseCode.CONTENT, listContentsAt(uriPath.last()), MediaTypeRegistry.TEXT_PLAIN)
+        }
+		else {
+			exchange!!.respond(ResponseCode.CONTENT, listAllContents(), MediaTypeRegistry.TEXT_PLAIN)
+        }
+	}
+	
+	fun listContentsAt(location: String): String {
+		actor.solve("findall(Item, at(Item, $location), List)")
+		return actor.getCurSol("List").toString()
 	}
 	
 	fun listAllContents(): String {

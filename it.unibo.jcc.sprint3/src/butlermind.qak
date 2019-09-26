@@ -152,7 +152,14 @@ QActor butlermind context ctxButlermind {
 	State doClear {
 		
 		onMsg (clear : clear) {
-			// TODO
+			
+//			println("butlermind | doClear")
+			
+//			["val client = itunibo.jcc.coap.fridge.client.MyCoapClient(\"localhost\", 5685, \"roomstate\")"]
+//			["client.setUriParams(\"table\")"]
+//			["val state = client.synchGet()"]
+			
+			run itunibo.jcc.butlermind.butlerUtil.setClearGoals(myself, "carrierbehavior")
 		}
 	}
 	Goto handleSuspendResume

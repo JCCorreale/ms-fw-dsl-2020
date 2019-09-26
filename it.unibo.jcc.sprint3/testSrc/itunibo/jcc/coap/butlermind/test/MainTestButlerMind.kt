@@ -38,18 +38,27 @@ fun main() = runBlocking {
 	
 	// PREPARE
 	
-	println(" %%%%%%% MainTestButlerMind PREPARE")
-	MsgUtil.sendMsg("prepare","prepare", butlerMind!!)
+//	println(" %%%%%%% MainTestButlerMind PREPARE")
+//	MsgUtil.sendMsg("prepare","prepare", butlerMind!!)
 	
 	// ADD FOOD
 	
-//	println(" %%%%%%% MainTestButlerMind addFood(pizza)")
-//	MsgUtil.sendMsg("addFood","addFood(pizza)", butlerMind!!)
+	println(" %%%%%%% MainTestButlerMind addFood(pizza)")
+	MsgUtil.sendMsg("addFood","addFood(pizza)", butlerMind!!)
 	
 	// ADD FOOD ERROR
 	
 //	println(" %%%%%%% MainTestButlerMind addFood(olives)")
 //	MsgUtil.sendMsg("addFood","addFood(olives)", butlerMind!!)
+	
+//	delay(20000)
+	
+	// CLEAR
+	
+	println(" %%%%%%% MainTestButlerMind CLEAR")
+	MsgUtil.sendMsg("clear","clear", butlerMind!!)
+	
+	// TODO CREATE COMMAND CONSOLE (and simulate consumption)
 	
 //	delay(5000)
 //	
