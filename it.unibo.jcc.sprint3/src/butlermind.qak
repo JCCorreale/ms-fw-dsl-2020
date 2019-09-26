@@ -68,7 +68,8 @@ QActor roomstate context ctxButlermind {
 			}
 		}
 		onMsg( put : put(Item, Location) ) {
-			if "payloadArg(1) == \"fridge\""  { 				
+			
+			if "(payloadArg(1) == \"fridge\") && (payloadArg(0) != \"butler\")" {
 				// TODO Update via COAP?
 				forward fridgeresourcemodel -m put : put($payloadArg(0)) // FRIDGE resource model!
 			}

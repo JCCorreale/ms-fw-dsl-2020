@@ -50,7 +50,7 @@ class Roomstate ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, s
 						}
 						if( checkMsgContent( Term.createTerm("put(Item,Location)"), Term.createTerm("put(Item,Location)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								if(payloadArg(1) == "fridge"){ forward("put", "put(${payloadArg(0)})" ,"fridgeresourcemodel" ) 
+								if((payloadArg(1) == "fridge") && (payloadArg(0) != "butler")){ forward("put", "put(${payloadArg(0)})" ,"fridgeresourcemodel" ) 
 								 }
 								else
 								 { solve("assert(at(${payloadArg(0)},${payloadArg(1)}))","") //set resVar	

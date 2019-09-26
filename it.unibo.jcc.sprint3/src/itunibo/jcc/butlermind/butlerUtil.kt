@@ -8,6 +8,10 @@ object butlerUtil {
 	
 	fun setClearGoals(actor: ActorBasic, target: String) {
 		val items = getItems().minus("butler") // TODO Workaround
+		
+		//
+		println("setClearGoals | items = $items")
+		
 		val goals = items.map {
 			if (it == "dishes")
 				"at(dishes,dishwasher)"
@@ -16,7 +20,7 @@ object butlerUtil {
 		}.plus("at(butler,home)")
 		
 		//
-		println(goals)
+		println("setClearGoals | goals = $goals")
 		
 		GlobalScope.launch {
 			goals.forEach {

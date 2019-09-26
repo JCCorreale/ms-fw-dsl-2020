@@ -64,7 +64,7 @@ class Butlermind ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								itunibo.jcc.butlermind.butlerUtil.setClearGoals(myself ,"carrierbehavior" )
 						}
-					} 
+					}
 					 transition( edgeName="goto",targetState="handleSuspendResume", cond=doswitch() )
 				}	 
 				state("handleSuspendResume") { //this:State
