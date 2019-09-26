@@ -82,9 +82,9 @@ QActor roomstate context ctxButlermind {
 		}
 		onMsg( goto : goto(Location) ) { // TODO Untested
 			println("butlermind received goto(${payloadArg(0)})")
-			solve( retract( at( butler, X ) ) )
-			solve( assert( at( butler, $payloadArg(0) ) ) )
-			// Always solved
+			solve( retractall( at( butler, X ) ) ) // TODO Should never be more than one
+			// Now sending goto(Location) to LEAVE current location and put(butler, X) to assert new location 
+//			solve( assert( at( butler, $payloadArg(0) ) ) ) // Always solved
 			ifSolved {
 				run itunibo.jcc.coap.roomstate.roomModelResourceCoap.updateState()
 			}
