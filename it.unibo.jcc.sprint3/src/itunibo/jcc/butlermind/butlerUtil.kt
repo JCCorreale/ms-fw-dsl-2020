@@ -13,7 +13,7 @@ object butlerUtil {
 				"at(dishes,dishwasher)"
 			else
 				"at($it,fridge)"
-		}
+		}.plus("at(butler,home)")
 		
 		//
 		println(goals)

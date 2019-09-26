@@ -3,10 +3,8 @@
 %
 
 content(pizza).
-content(pizza).
 content(salmon).
 content(caviar).
-content(pasta).
 content(pasta).
 
 count(P,Count) :-
