@@ -26,7 +26,8 @@ class Butlermind ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, 
 					}
 					 transition(edgeName="t03",targetState="doPrepare",cond=whenDispatch("prepare"))
 					transition(edgeName="t04",targetState="doAddFood",cond=whenDispatch("addFood"))
-					transition(edgeName="t05",targetState="suspend",cond=whenDispatch("stop"))
+					transition(edgeName="t05",targetState="doClear",cond=whenDispatch("clear"))
+					transition(edgeName="t06",targetState="suspend",cond=whenDispatch("stop"))
 				}	 
 				state("doPrepare") { //this:State
 					action { //it:State
@@ -57,19 +58,27 @@ class Butlermind ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, 
 					}
 					 transition( edgeName="goto",targetState="handleSuspendResume", cond=doswitch() )
 				}	 
+				state("doClear") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("clear"), Term.createTerm("clear"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+						}
+					}
+					 transition( edgeName="goto",targetState="handleSuspendResume", cond=doswitch() )
+				}	 
 				state("handleSuspendResume") { //this:State
 					action { //it:State
 						println("butlermind | handleSuspendResume")
 					}
-					 transition(edgeName="t06",targetState="waitCommand",cond=whenEvent("goalReached"))
-					transition(edgeName="t07",targetState="suspend",cond=whenDispatch("stop"))
+					 transition(edgeName="t07",targetState="waitCommand",cond=whenEvent("goalReached"))
+					transition(edgeName="t08",targetState="suspend",cond=whenDispatch("stop"))
 				}	 
 				state("suspend") { //this:State
 					action { //it:State
 						println("butlermind | suspend")
 						forward("suspend", "suspend" ,"carrierbehavior" ) 
 					}
-					 transition(edgeName="t08",targetState="resume",cond=whenDispatch("reactivate"))
+					 transition(edgeName="t09",targetState="resume",cond=whenDispatch("reactivate"))
 				}	 
 				state("resume") { //this:State
 					action { //it:State

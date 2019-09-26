@@ -2,9 +2,12 @@ System butlermind
 
 mqttBroker "localhost" : 1883    //192.168.1.18  192.168.43.229
 
-// From the maitre
+// From the maitre (REQUIREMENTS)
+
 Dispatch prepare : prepare
 Dispatch addFood : addFood(Food)
+Dispatch clear : clear
+
 Dispatch stop : stop
 Dispatch reactivate : reactivate
 
@@ -78,9 +81,12 @@ QActor roomstate context ctxButlermind {
 			}
 		}
 		onMsg( goto : goto(Location) ) { // TODO Untested
+			println("butlermind received goto(${payloadArg(0)})")
+			solve( retract( at( butler, X ) ) )
+			solve( assert( at( butler, $payloadArg(0) ) ) )
+			// Always solved
 			ifSolved {
-				solve( retract( at( butler, X ) ) )
-				solve( assert( at( butler, $payloadArg(0) ) ) )
+				run itunibo.jcc.coap.roomstate.roomModelResourceCoap.updateState()
 			}
 		}
 		
@@ -108,6 +114,7 @@ QActor butlermind context ctxButlermind {
 	State waitCommand{ }
 	Transition t0 whenMsg prepare -> doPrepare
 				  whenMsg addFood -> doAddFood
+				  whenMsg clear -> doClear
 				  whenMsg stop -> suspend // TODO Workaround
 
 	State doPrepare{
@@ -138,6 +145,14 @@ QActor butlermind context ctxButlermind {
 				forward carrierbehavior -m setGoal : setGoal( at($payloadArg(0), table) )
 				forward carrierbehavior -m setGoal : setGoal( at(butler, home) )
 			["}"]
+		}
+	}
+	Goto handleSuspendResume
+	
+	State doClear {
+		
+		onMsg (clear : clear) {
+			// TODO
 		}
 	}
 	Goto handleSuspendResume

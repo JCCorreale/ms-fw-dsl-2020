@@ -60,8 +60,10 @@ class Roomstate ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, s
 						}
 						if( checkMsgContent( Term.createTerm("goto(Location)"), Term.createTerm("goto(Location)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								if(currentSolution.isSuccess()) { solve("retract(at(butler,X))","") //set resVar	
+								println("butlermind received goto(${payloadArg(0)})")
+								solve("retract(at(butler,X))","") //set resVar	
 								solve("assert(at(butler,${payloadArg(0)}))","") //set resVar	
+								if(currentSolution.isSuccess()) { itunibo.jcc.coap.roomstate.roomModelResourceCoap.updateState(  )
 								 }
 						}
 						solve("showContent","") //set resVar	
