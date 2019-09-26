@@ -51,7 +51,7 @@ fun main() = runBlocking {
 //	println(" %%%%%%% MainTestButlerMind addFood(olives)")
 //	MsgUtil.sendMsg("addFood","addFood(olives)", butlerMind!!)
 	
-//	delay(20000)
+	delay(60000)
 	
 	// CLEAR
 	
