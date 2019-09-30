@@ -29,11 +29,24 @@ object roomModelFridgeObserver : CoapHandler {
 		
 		println("roomModelFridgeObserver | onload $items")
 //
+		var butlerAtFridge = false
+		// Preserve butler if present
+		actor.solve("at(butler,fridge)")
+		if (actor.solveOk()) {
+			butlerAtFridge = true
+		}
+		
 		actor.solve(" retractall( at(X, fridge) ) ")
 		
 		items.forEach({
 			actor.solve(" assert( at($it, fridge) ) ")
 		})
+		
+		
+		// Preserve butler if present
+		if (butlerAtFridge) {
+			actor.solve(" assert( at(butler, fridge) ) ")
+		}
 		
 		roomModelResourceCoap.updateState()
 	}

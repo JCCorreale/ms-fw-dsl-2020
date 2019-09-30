@@ -37,6 +37,8 @@ QActor roomstate context ctxButlermind {
 		solve( showContent )
 		// Register to fridge COAP resource
 		run itunibo.jcc.coap.roomstate.roomModelFridgeObserver.create(myself)
+		// Register to room map model resource
+		run itunibo.jcc.coap.roomstate.roomMapModelObserverCoapClient.create(myself)
 		// Create COAP resource
 		run itunibo.jcc.coap.roomstate.roomModelResourceCoap.create( myself, "roomstate" ) //CoAP access
 	}
@@ -81,15 +83,15 @@ QActor roomstate context ctxButlermind {
 				}
 			}
 		}
-		onMsg( goto : goto(Location) ) { // TODO Untested
-			println("butlermind received goto(${payloadArg(0)})")
-			solve( retractall( at( butler, X ) ) ) // TODO Should never be more than one
-			// Now sending goto(Location) to LEAVE current location and put(butler, X) to assert new location 
-//			solve( assert( at( butler, $payloadArg(0) ) ) ) // Always solved
-			ifSolved {
-				run itunibo.jcc.coap.roomstate.roomModelResourceCoap.updateState()
-			}
-		}
+//		onMsg( goto : goto(Location) ) { // TODO Untested
+//			println("butlermind received goto(${payloadArg(0)})")
+//			solve( retractall( at( butler, X ) ) ) // TODO Should never be more than one
+//			// Now sending goto(Location) to LEAVE current location and put(butler, X) to assert new location 
+////			solve( assert( at( butler, $payloadArg(0) ) ) ) // Always solved
+//			ifSolved {
+//				run itunibo.jcc.coap.roomstate.roomModelResourceCoap.updateState()
+//			}
+//		}
 		
 		solve( showContent )
 	}

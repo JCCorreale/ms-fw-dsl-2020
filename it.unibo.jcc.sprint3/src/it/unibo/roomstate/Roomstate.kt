@@ -21,6 +21,7 @@ class Roomstate ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, s
 						solve("consult('roomState.pl')","") //set resVar	
 						solve("showContent","") //set resVar	
 						itunibo.jcc.coap.roomstate.roomModelFridgeObserver.create(myself)
+						itunibo.jcc.coap.roomstate.roomMapModelObserverCoapClient.create(myself)
 						itunibo.jcc.coap.roomstate.roomModelResourceCoap.create(myself ,"roomstate" )
 					}
 					 transition( edgeName="goto",targetState="waitModelChange", cond=doswitch() )
@@ -57,13 +58,6 @@ class Roomstate ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, s
 								 if(currentSolution.isSuccess()) { itunibo.jcc.coap.roomstate.roomModelResourceCoap.updateState(  )
 								  }
 								  }
-						}
-						if( checkMsgContent( Term.createTerm("goto(Location)"), Term.createTerm("goto(Location)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								println("butlermind received goto(${payloadArg(0)})")
-								solve("retractall(at(butler,X))","") //set resVar	
-								if(currentSolution.isSuccess()) { itunibo.jcc.coap.roomstate.roomModelResourceCoap.updateState(  )
-								 }
 						}
 						solve("showContent","") //set resVar	
 					}
