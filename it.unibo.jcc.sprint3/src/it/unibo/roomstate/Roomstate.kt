@@ -38,6 +38,7 @@ class Roomstate ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, s
 						println("$name in ${currentState.stateName} | $currentMsg")
 						if( checkMsgContent( Term.createTerm("take(Item,Location)"), Term.createTerm("take(Item,Location)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
+								solve("assert(at(${payloadArg(0)},butler))","") //set resVar	
 								if(payloadArg(1) == "fridge"){ forward("take", "take(${payloadArg(0)})" ,"fridgeresourcemodel" ) 
 								 }
 								else
@@ -51,6 +52,7 @@ class Roomstate ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name, s
 						}
 						if( checkMsgContent( Term.createTerm("put(Item,Location)"), Term.createTerm("put(Item,Location)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
+								solve("retract(at(${payloadArg(0)},butler))","") //set resVar	
 								if((payloadArg(1) == "fridge") && (payloadArg(0) != "butler")){ forward("put", "put(${payloadArg(0)})" ,"fridgeresourcemodel" ) 
 								 }
 								else

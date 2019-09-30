@@ -55,6 +55,8 @@ QActor roomstate context ctxButlermind {
 		printCurrentMessage
 		// TODO
 		onMsg( take : take(Item, Location) ) {
+			// Butler carries item
+			solve( assert( at( $payloadArg(0), butler ) ) )
 			if "payloadArg(1) == \"fridge\""  {	
 				// TODO Update via COAP?
 				forward fridgeresourcemodel -m take : take($payloadArg(0)) // FRIDGE resource model!
@@ -70,7 +72,8 @@ QActor roomstate context ctxButlermind {
 			}
 		}
 		onMsg( put : put(Item, Location) ) {
-			
+			// Butler drops item
+			solve( retract( at( $payloadArg(0) , butler ) ) )
 			if "(payloadArg(1) == \"fridge\") && (payloadArg(0) != \"butler\")" {
 				// TODO Update via COAP?
 				forward fridgeresourcemodel -m put : put($payloadArg(0)) // FRIDGE resource model!
