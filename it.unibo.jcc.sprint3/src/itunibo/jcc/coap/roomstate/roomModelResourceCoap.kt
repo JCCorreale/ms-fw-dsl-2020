@@ -69,8 +69,14 @@ class roomModelResourceCoap (name : String ) : CoapResource(name) {
 	}
 	
 	fun listContentsAt(location: String): String {
-		actor.solve("findall(Item, at(Item, $location), List)")
-		return actor.getCurSol("List").toString()
+//		actor.solve("findall(Item, at(Item, $location), ListOut)")
+		// Removes butler if present
+		println("listContentsAt before")
+		actor.solve("showContents")
+		actor.solve("listContentsAt($location, ListOut)")
+		println("listContentsAt after")
+//		println("listContentsAt ${actor.getCurSol("ListOut")}")
+		return actor.getCurSol("ListOut").toString()
 	}
 	
 	fun listAllContents(): String {

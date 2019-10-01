@@ -14,7 +14,7 @@ import java.awt.Color
 
 
 object roomModelObserverCoapClient : CoapHandler {
-	val roomModelResourceAddr = "coap://localhost:5685/roomstate" // "coap://192.168.43.67:5683"
+	val roomModelResourceAddr = "coap://localhost:5685/roomstate/fridge" // "coap://192.168.43.67:5683" // TODO
 	val outDev            = outguiSupport.create("Room model Coap OBSERVER", Color.red)
 	
 	override fun onLoad(response: CoapResponse?) {
