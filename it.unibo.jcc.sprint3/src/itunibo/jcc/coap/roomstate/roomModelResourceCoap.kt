@@ -61,20 +61,28 @@ class roomModelResourceCoap (name : String ) : CoapResource(name) {
 		
         // check if there is a sub-resource given, and if so use it for processing
         if (uriPath!!.size > 1) {
-			exchange!!.respond(ResponseCode.CONTENT, listContentsAt(uriPath.last()), MediaTypeRegistry.TEXT_PLAIN)
+			if (uriPath.last() == "butlerLocation")
+				exchange!!.respond(ResponseCode.CONTENT, getButlerLocation(), MediaTypeRegistry.TEXT_PLAIN)
+			else
+				exchange!!.respond(ResponseCode.CONTENT, listContentsAt(uriPath.last()), MediaTypeRegistry.TEXT_PLAIN)
         }
 		else {
 			exchange!!.respond(ResponseCode.CONTENT, listAllContents(), MediaTypeRegistry.TEXT_PLAIN)
         }
 	}
 	
+	fun getButlerLocation(): String {
+		actor.solve("at(butler, Location)")
+		if (actor.solveOk())
+			return actor.getCurSol("Location").toString()
+		else
+			return "<travelling>"
+	}
+	
 	fun listContentsAt(location: String): String {
 //		actor.solve("findall(Item, at(Item, $location), ListOut)")
 		// Removes butler if present
-		println("listContentsAt before")
-		actor.solve("showContents")
 		actor.solve("listContentsAt($location, ListOut)")
-		println("listContentsAt after")
 //		println("listContentsAt ${actor.getCurSol("ListOut")}")
 		return actor.getCurSol("ListOut").toString()
 	}

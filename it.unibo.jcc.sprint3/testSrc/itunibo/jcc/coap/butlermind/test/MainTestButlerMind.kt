@@ -7,6 +7,7 @@ import kotlinx.coroutines.delay
 import it.unibo.kactor.ActorBasic
 import it.unibo.kactor.sysUtil
 import it.unibo.kactor.MsgUtil
+import java.awt.Color
 
 // RUN MainCtxFridge first
 
@@ -24,7 +25,13 @@ fun main() = runBlocking {
 	// Monitor room state
 	GlobalScope.launch {
 	    println(" %%%%%%% MainTestRoomState starting roomModelObserverCoapClient")
-		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create()
+		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.red)
+		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.white, "fridge")
+		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.blue, "butler")
+		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color(181, 101, 29), "table")
+		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.green, "dishwasher")
+		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.lightGray, "pantry")
+		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.pink, "butlerLocation")
 	}
 	
 	// Give time to launch all "agents"

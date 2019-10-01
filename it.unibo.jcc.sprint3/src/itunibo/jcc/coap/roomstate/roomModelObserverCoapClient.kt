@@ -11,25 +11,43 @@ import org.eclipse.californium.core.CoapObserveRelation
 import org.eclipse.californium.core.CoapResponse
 import itunibo.outgui.outguiSupport
 import java.awt.Color
+import itunibo.outgui.OutDevPanel
+import itunibo.outgui.Utils
+import java.awt.BorderLayout
 
 
-object roomModelObserverCoapClient : CoapHandler {
-	val roomModelResourceAddr = "coap://localhost:5685/roomstate/fridge" // "coap://192.168.43.67:5683" // TODO
-	val outDev            = outguiSupport.create("Room model Coap OBSERVER", Color.red)
+class roomModelObserverCoapClient(color: Color, subresource: String) : CoapHandler {
+
+	companion object {
+		fun create(guiColor: Color, subresource: String = ""){
+			val client   = CoapClient( "coap://localhost:5685/roomstate/$subresource" )
+			//val relation =
+			client.observe(  roomModelObserverCoapClient(guiColor, subresource) ) 
+			//relation!!.proactiveCancel()   /AT THE END
+		}
+	}
+	
+	val outDev: OutDevPanel
+	
+	init {
+		val frame = Utils.initFrame()
+		outDev = OutDevPanel( 19,60, color, Color.black)
+		frame.add(BorderLayout.CENTER, outDev )
+		frame.setTitle("roomstate/$subresource");
+		frame.validate()
+		//frame.add(BorderLayout.CENTER,p);
+	}
 	
 	override fun onLoad(response: CoapResponse?) {
 		val content = response!!.getResponseText()
-		outguiSupport.output("$content"  )
+		output("$content")
 	}
 	override fun onError() {
-		outguiSupport.output("roomModelObserverCoapClient Error")
+		output("roomModelObserverCoapClient Error")
 	}
 	
-	fun create(resourceAddr : String = roomModelResourceAddr){
-		val client   = CoapClient( resourceAddr )
-		//val relation =
-		client.observe(  roomModelObserverCoapClient ) 
-		//relation!!.proactiveCancel()   /AT THE END
+	fun output( msg : String ){
+		outDev.println( msg )
 	}
 }
  
