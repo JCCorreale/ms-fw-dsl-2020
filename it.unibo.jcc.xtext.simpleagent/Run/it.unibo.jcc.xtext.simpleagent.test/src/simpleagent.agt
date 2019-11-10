@@ -58,7 +58,11 @@ var PauseTimeL  = PauseTime.toLong()
 		run itunibo.^planner.moveUtils.attemptTomoveAhead(myself, StepTime)
 	}
 	onEffect(stepOk) {
-		run itunibo.^planner.moveUtils.updateMapAfterAheadOk(myself)	
+		// Update robot state
+		run itunibo.^planner.moveUtils.updateMapAfterAheadOk(myself)
+		run itunibo.^planner.moveUtils.showCurrentRobotState()
+	 	["	val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()  "]
+	 	forward resourcemodel -m modelUpdate : modelUpdate(roomMap,$MapStr)
 	}
 	onEffect(stepFail) {
 		onMsg( stepFail : stepFail(Obs,Time) ) {
@@ -95,9 +99,9 @@ var PauseTimeL  = PauseTime.toLong()
 	}
 	
 	onGoalReached {
-		run itunibo.^planner.moveUtils.showCurrentRobotState()
-	 	["	val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()  "]
-	 	forward resourcemodel -m modelUpdate : modelUpdate(roomMap,$MapStr)
+//		run itunibo.^planner.moveUtils.showCurrentRobotState()
+//	 	["	val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()  "]
+//	 	forward resourcemodel -m modelUpdate : modelUpdate(roomMap,$MapStr)
 	}
 
 	onSuspended {

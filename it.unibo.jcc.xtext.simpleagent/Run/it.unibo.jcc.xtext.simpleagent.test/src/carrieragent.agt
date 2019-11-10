@@ -58,7 +58,7 @@ Behavior carrier planner itunibo.jcc.^planner.adapter.^CarrierPlannerAdapter {
 		["planner.put(\"${payloadArg(0)}\", \"${payloadArg(1)}\")"]
 		["payloadArg0 = payloadArg(0)"] // TODO
 		["payloadArg1 = payloadArg(1)"] // TODO
-		println("carrier sending PUT to roomstate")
+		println("carrier sending put(${payloadArg0},${payloadArg1}) to roomstate")
 		["forward(\"put\", \"put(${payloadArg0},${payloadArg1})\" ,\"roomstate\" )"]
 	}
 //	onEffect(goalReached) { // TODO Workaround
@@ -75,6 +75,9 @@ Behavior carrier planner itunibo.jcc.^planner.adapter.^CarrierPlannerAdapter {
 	//		["planner.update(\"butler\", \"${payloadArg(0)}\")"]
 			["planner.goto(\"${payloadArg(0)}\")"]
 			["payloadArg0 = payloadArg(0)"] // TODO
+			// AUTOMATICALLY "LEAVES" LOCATION ON EVENT FROM ROBOTMIND
+			// Now sending goto(Location) to LEAVE current location and put(butler, X) to assert new location 
+//			["forward(\"goto\", \"goto($payloadArg0)\" ,\"roomstate\" )"] // TODO Argument not needed
 		["}"]
 	}
 	// TODO Currently done "by hand", automatize
@@ -93,8 +96,10 @@ Behavior carrier planner itunibo.jcc.^planner.adapter.^CarrierPlannerAdapter {
 	onEffect(goalReached) { // TODO Workaround
 		printCurrentMessage
 //		println("carrier: subgoal reached")
-		println("carrier sending GOTO to roomstate")
-		["forward(\"goto\", \"goto($payloadArg0)\" ,\"roomstate\" )"]
+		// Now sending goto(Location) to LEAVE current location and put(butler, X) to assert new location 
+		["forward(\"put\", \"put(butler,${payloadArg0})\" ,\"roomstate\" )"]
+//		println("carrier sending goto($payloadArg0) to roomstate")
+//		["forward(\"goto\", \"goto($payloadArg0)\" ,\"roomstate\" )"]
 //		forward roomstate -m goto : goto($payloadArg(0))
 		["suspendedGoto = false"]
 	}

@@ -25,7 +25,7 @@ Dispatch modelUpdate  : modelUpdate( TARGET, VALUE )  //sent by the mind TARGET=
 Dispatch onestep       : onestep(DURATION) 
 Dispatch stepOk        : stepOk(V)		//TODO eliminate  V
 Dispatch stepFail      : stepFail(R,T) //R=ok | obstacle, T = time
- 
+
 Dispatch startAppl     : startAppl( CMD )   
 
 Context ctxRobotMind     ip [host="localhost" port=8035]  -mqtt
@@ -95,7 +95,7 @@ QActor robotmind context ctxRobotMind{
 	}
 	Goto waitCmd
 	 
-	State waitCmd {		} 
+	State waitCmd {		}
 	Transition t0 whenEvent envCond            -> handleEnvCond
 				  whenEvent sonarRobot         -> handleSonarRobot
 		          whenEvent local_modelChanged -> handleModelChanged
