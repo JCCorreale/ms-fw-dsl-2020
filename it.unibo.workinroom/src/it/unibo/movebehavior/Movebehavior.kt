@@ -119,9 +119,6 @@ class Movebehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 				}	 
 				state("goalOk") { //this:State
 					action { //it:State
-						itunibo.planner.moveUtils.showCurrentRobotState(  )
-							val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()  
-						forward("modelUpdate", "modelUpdate(roomMap,$MapStr)" ,"resourcemodel" ) 
 						forward("goalReached", "goalReached", GoalSender)
 					}
 					 transition( edgeName="goto",targetState="waitGoal", cond=doswitch() )
@@ -171,6 +168,9 @@ class Movebehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 				state("w_onStepOk") { //this:State
 					action { //it:State
 						itunibo.planner.moveUtils.updateMapAfterAheadOk(myself)
+						itunibo.planner.moveUtils.showCurrentRobotState(  )
+							val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()  
+						forward("modelUpdate", "modelUpdate(roomMap,$MapStr)" ,"resourcemodel" ) 
 					}
 					 transition( edgeName="goto",targetState="finalizeMove", cond=doswitch() )
 				}	 

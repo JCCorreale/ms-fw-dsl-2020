@@ -161,7 +161,7 @@ val planner = itunibo.jcc.planner.adapter.CarrierPlannerAdapter()
 	State put {
 		onMsg(put : put(Item,Location)) { // TODO Better handling of multiple actions!
 			// from "agent" code
-			printCurrentMessage println("carrier putting ${payloadArg(0)} in ${payloadArg(1)}") ["planner.put(\"${payloadArg(0)}\", \"${payloadArg(1)}\")"] ["payloadArg0 = payloadArg(0)"] ["payloadArg1 = payloadArg(1)"] println("carrier sending PUT to roomstate") ["forward(\"put\", \"put(${payloadArg0},${payloadArg1})\" ,\"roomstate\" )"]
+			printCurrentMessage println("carrier putting ${payloadArg(0)} in ${payloadArg(1)}") ["planner.put(\"${payloadArg(0)}\", \"${payloadArg(1)}\")"] ["payloadArg0 = payloadArg(0)"] ["payloadArg1 = payloadArg(1)"] println("carrier sending put(${payloadArg0},${payloadArg1}) to roomstate") ["forward(\"put\", \"put(${payloadArg0},${payloadArg1})\" ,\"roomstate\" )"]
 		}
 	}
 	Goto finalizeMove // No "on(...)" clause specified
@@ -202,7 +202,7 @@ val planner = itunibo.jcc.planner.adapter.CarrierPlannerAdapter()
 		whenMsg retry  -> goto_retry // TODO Handles only one compensation per ACTION (on a single Effect)!!!
 	State goto_onGoalReached{ // TODO HANDLE MESSAGE NAMES BETTER!!!
 		// from "agent" code
-		printCurrentMessage println("carrier sending GOTO to roomstate") ["forward(\"goto\", \"goto($payloadArg0)\" ,\"roomstate\" )"] ["suspendedGoto = false"]
+		printCurrentMessage ["forward(\"put\", \"put(butler,${payloadArg0})\" ,\"roomstate\" )"] ["suspendedGoto = false"]
 		// TODO Check consistency with QActor guarded transitions policy
 	}
 	Goto finalizeMove

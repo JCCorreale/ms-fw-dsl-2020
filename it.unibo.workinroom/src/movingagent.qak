@@ -133,7 +133,6 @@ val planner = itunibo.jcc.planner.adapter.MovePlannerAdapter()
 	Goto checkAndDoAction if "(Curmove.length>0) " else goalOk 
 
  	State goalOk{
- 		run itunibo.planner.moveUtils.showCurrentRobotState() ["	val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()  "] forward resourcemodel -m modelUpdate : modelUpdate(roomMap,$MapStr)
  		//run itunibo.planner.moveUtils.showCurrentRobotState()
 	 	//["	val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()  "]
 	 	//forward resourcemodel -m modelUpdate : modelUpdate(roomMap,$MapStr)
@@ -197,7 +196,7 @@ val planner = itunibo.jcc.planner.adapter.MovePlannerAdapter()
 	 	
 	State w_onStepOk{ // TODO HANDLE MESSAGE NAMES BETTER!!!
 		// from "agent" code
-		run itunibo.planner.moveUtils.updateMapAfterAheadOk(myself)
+		run itunibo.planner.moveUtils.updateMapAfterAheadOk(myself) run itunibo.planner.moveUtils.showCurrentRobotState() ["	val MapStr =  itunibo.planner.plannerUtil.getMapOneLine()  "] forward resourcemodel -m modelUpdate : modelUpdate(roomMap,$MapStr)
 		// TODO Check consistency with QActor guarded transitions policy
 	}
 	Goto finalizeMove

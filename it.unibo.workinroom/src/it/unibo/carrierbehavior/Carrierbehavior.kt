@@ -142,7 +142,7 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 								planner.put("${payloadArg(0)}", "${payloadArg(1)}")
 								payloadArg0 = payloadArg(0)
 								payloadArg1 = payloadArg(1)
-								println("carrier sending PUT to roomstate")
+								println("carrier sending put(${payloadArg0},${payloadArg1}) to roomstate")
 								forward("put", "put(${payloadArg0},${payloadArg1})" ,"roomstate" )
 						}
 					}
@@ -186,8 +186,7 @@ class Carrierbehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( n
 				state("goto_onGoalReached") { //this:State
 					action { //it:State
 						println("$name in ${currentState.stateName} | $currentMsg")
-						println("carrier sending GOTO to roomstate")
-						forward("goto", "goto($payloadArg0)" ,"roomstate" )
+						forward("put", "put(butler,${payloadArg0})" ,"roomstate" )
 						suspendedGoto = false
 					}
 					 transition( edgeName="goto",targetState="finalizeMove", cond=doswitch() )

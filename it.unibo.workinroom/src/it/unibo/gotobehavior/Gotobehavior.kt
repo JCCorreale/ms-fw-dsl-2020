@@ -107,7 +107,7 @@ class Gotobehavior ( name: String, scope: CoroutineScope ) : ActorBasicFsm( name
 					 transition(edgeName="t04",targetState="goto",cond=whenDispatch("goto"))
 				}	 
 				state("goto") { //this:State
-					action { //it:State 
+					action { //it:State
 						if( checkMsgContent( Term.createTerm("goto(L)"), Term.createTerm("goto(L)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								println("gotobehavior: ${payloadArg(0)}")
