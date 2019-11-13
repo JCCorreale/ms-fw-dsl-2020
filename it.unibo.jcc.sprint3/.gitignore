@@ -24,7 +24,6 @@ docker/
 /src-gen/
 
 /target/
-/.classpath
-/*.project
-/.settings
-/*.springBeans
+**/.classpath
+**/*.project
+**/.settings
