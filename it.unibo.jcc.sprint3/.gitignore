@@ -22,3 +22,9 @@ gradle
 docker/
 /.metadata/
 /src-gen/
+
+/target/
+/.classpath
+/*.project
+/.settings
+/*.springBeans
