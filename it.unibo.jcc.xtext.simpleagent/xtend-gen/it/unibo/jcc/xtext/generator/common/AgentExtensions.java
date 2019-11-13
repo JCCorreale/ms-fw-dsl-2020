@@ -30,14 +30,16 @@ public class AgentExtensions {
         if ((_msg instanceof PStruct)) {
           content.append("(");
           PHead _msg_1 = ((Message)object).getMsg();
-          final Procedure2<PHead, Integer> _function = (PHead arg, Integer i) -> {
-            content.append(AgentExtensions.getHead(arg));
-            PHead _msg_2 = ((Message)object).getMsg();
-            int _size = ((PStruct) _msg_2).getMsgArg().size();
-            int _minus = (_size - 1);
-            boolean _lessThan = ((i).intValue() < _minus);
-            if (_lessThan) {
-              content.append(",");
+          final Procedure2<PHead, Integer> _function = new Procedure2<PHead, Integer>() {
+            public void apply(final PHead arg, final Integer i) {
+              content.append(AgentExtensions.getHead(arg));
+              PHead _msg = ((Message)object).getMsg();
+              int _size = ((PStruct) _msg).getMsgArg().size();
+              int _minus = (_size - 1);
+              boolean _lessThan = ((i).intValue() < _minus);
+              if (_lessThan) {
+                content.append(",");
+              }
             }
           };
           IterableExtensions.<PHead>forEach(((PStruct) _msg_1).getMsgArg(), _function);

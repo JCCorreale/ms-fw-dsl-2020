@@ -29,14 +29,15 @@ import org.eclipse.xtext.scoping.Scopes;
  */
 @SuppressWarnings("all")
 public class SimpleAgentScopeProvider extends AbstractSimpleAgentScopeProvider {
-  @Override
   public IScope getScope(final EObject context, final EReference reference) {
     EClass _eReferenceType = reference.getEReferenceType();
     boolean _equals = Objects.equal(_eReferenceType, SimpleAgentPackage.Literals.MESSAGE);
     if (_equals) {
       ArrayList<Message> builtinMessages = SimpleAgentScopeProvider.builtinMessages();
-      final Consumer<Message> _function = (Message it) -> {
-        this.addToQActorSystemSpec(context.eResource(), it);
+      final Consumer<Message> _function = new Consumer<Message>() {
+        public void accept(final Message it) {
+          SimpleAgentScopeProvider.this.addToQActorSystemSpec(context.eResource(), it);
+        }
       };
       builtinMessages.forEach(_function);
       return Scopes.scopeFor(builtinMessages, super.getScope(context, reference));

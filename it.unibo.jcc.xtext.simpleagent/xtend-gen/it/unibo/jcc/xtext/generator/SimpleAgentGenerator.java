@@ -41,7 +41,6 @@ public class SimpleAgentGenerator extends AbstractGenerator {
   /**
    * GENERATION
    */
-  @Override
   public void doGenerate(final Resource resource, final IFileSystemAccess2 fsa, final IGeneratorContext context) {
     GenUtils.setFsa(fsa);
     GenUtils.setFileExtension(resource.getURI().fileExtension());
@@ -630,8 +629,10 @@ public class SimpleAgentGenerator extends AbstractGenerator {
     {
       EList<OnEffect> _on = action.getOn();
       for(final OnEffect on : _on) {
-        final Function1<PHead, String> _function = (PHead it) -> {
-          return AgentExtensions.getHead(it);
+        final Function1<PHead, String> _function = new Function1<PHead, String>() {
+          public String apply(final PHead it) {
+            return AgentExtensions.getHead(it);
+          }
         };
         CharSequence _genActionOnState = this.genActionOnState(actorName, IterableExtensions.join(ListExtensions.<PHead, String>map(IterableExtensions.<PHead>toList(action.getActions()), _function), "_"), on);
         _builder.append(_genActionOnState);
@@ -716,8 +717,10 @@ public class SimpleAgentGenerator extends AbstractGenerator {
             {
               EList<Compensation> _compensations = on.getCompensations();
               for(final Compensation compensation : _compensations) {
-                final Function1<PHead, String> _function = (PHead it) -> {
-                  return AgentExtensions.getHead(it);
+                final Function1<PHead, String> _function = new Function1<PHead, String>() {
+                  public String apply(final PHead it) {
+                    return AgentExtensions.getHead(it);
+                  }
                 };
                 CharSequence _genActionOnEffectCompensationState = this.genActionOnEffectCompensationState(AgentExtensions.getActorName(behavior), IterableExtensions.join(ListExtensions.<PHead, String>map(IterableExtensions.<PHead>toList(action.getActions()), _function), "_"), compensation);
                 _builder.append(_genActionOnEffectCompensationState);
@@ -872,8 +875,10 @@ public class SimpleAgentGenerator extends AbstractGenerator {
   public CharSequence genActionState(final Action action) {
     StringConcatenation _builder = new StringConcatenation();
     _builder.append("State ");
-    final Function1<PHead, String> _function = (PHead it) -> {
-      return AgentExtensions.getHead(it);
+    final Function1<PHead, String> _function = new Function1<PHead, String>() {
+      public String apply(final PHead it) {
+        return AgentExtensions.getHead(it);
+      }
     };
     String _join = IterableExtensions.join(ListExtensions.<PHead, String>map(IterableExtensions.<PHead>toList(action.getActions()), _function), "_");
     _builder.append(_join);
@@ -898,8 +903,10 @@ public class SimpleAgentGenerator extends AbstractGenerator {
         {
           EList<OnEffect> _on = action.getOn();
           for(final OnEffect on : _on) {
-            final Function1<PHead, String> _function_1 = (PHead it) -> {
-              return AgentExtensions.getHead(it);
+            final Function1<PHead, String> _function_1 = new Function1<PHead, String>() {
+              public String apply(final PHead it) {
+                return AgentExtensions.getHead(it);
+              }
             };
             CharSequence _actionStateTransition = this.getActionStateTransition(IterableExtensions.join(ListExtensions.<PHead, String>map(IterableExtensions.<PHead>toList(action.getActions()), _function_1), "_"), on);
             _builder.append(_actionStateTransition, "\t");
@@ -1019,8 +1026,10 @@ public class SimpleAgentGenerator extends AbstractGenerator {
         String _head = AgentExtensions.getHead(phead);
         _builder.append(_head);
         _builder.append(" -> ");
-        final Function1<PHead, String> _function = (PHead it) -> {
-          return AgentExtensions.getHead(it);
+        final Function1<PHead, String> _function = new Function1<PHead, String>() {
+          public String apply(final PHead it) {
+            return AgentExtensions.getHead(it);
+          }
         };
         String _join = IterableExtensions.join(ListExtensions.<PHead, String>map(IterableExtensions.<PHead>toList(action.getActions()), _function), "_");
         _builder.append(_join);
