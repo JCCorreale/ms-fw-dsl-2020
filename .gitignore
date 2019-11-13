@@ -4,3 +4,8 @@
 *.java._trace
 *.xtendbin
 libs/
+
+**/target/
+**/.classpath
+**/*.project
+**/.settings
