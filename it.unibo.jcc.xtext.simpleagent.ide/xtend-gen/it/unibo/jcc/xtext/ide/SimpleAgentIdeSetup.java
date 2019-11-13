@@ -15,7 +15,6 @@ import org.eclipse.xtext.util.Modules2;
  */
 @SuppressWarnings("all")
 public class SimpleAgentIdeSetup extends SimpleAgentStandaloneSetup {
-  @Override
   public Injector createInjector() {
     SimpleAgentRuntimeModule _simpleAgentRuntimeModule = new SimpleAgentRuntimeModule();
     SimpleAgentIdeModule _simpleAgentIdeModule = new SimpleAgentIdeModule();

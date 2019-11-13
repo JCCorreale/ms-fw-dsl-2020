@@ -3,3 +3,4 @@
 **/.settings/**
 *.java._trace
 *.xtendbin
+libs/

@@ -27,7 +27,7 @@ sourceCompatibility = 1.8
 repositories {
     mavenCentral()
     flatDir { //grazie Mattia Piretti
-       dirs '/C:/Users/Stefano/Dropbox/Uni/IngSisSW/iss2019Lab/iss2019Lab/libs'	//full path
+       dirs '../libs'	// relative path
    }
 }
 
@@ -85,7 +85,7 @@ compileTestKotlin {
 sourceSets {
     main.java.srcDirs += 'src'
     main.java.srcDirs += 'testSrc'
-    main.java.srcDirs += 'C:/Users/Stefano/eclipse-workspace/iss2019/sprint/sprint3/it.unibo.robotmind/resources'    
+    main.java.srcDirs += '../it.unibo.robotmind/resources'
 }
 /*
 mainClassName = 'it.unibo.TODOKt'
