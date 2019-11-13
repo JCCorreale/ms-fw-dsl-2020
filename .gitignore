@@ -1,4 +1,5 @@
 /.metadata/
 .metadata/**
 **/.settings/**
-**/xtend-gen/**
+*.java._trace
+*.xtendbin
