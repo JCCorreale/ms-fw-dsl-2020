@@ -21,4 +21,3 @@ gradle
 .lck/ 
 docker/
 /.metadata/
-/src-gen/
