@@ -25,28 +25,28 @@ fun main() = runBlocking {
 	// Monitor room state
 	GlobalScope.launch {
 	    println(" %%%%%%% MainTestRoomState starting roomModelObserverCoapClient")
-		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.red)
-		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.white, "fridge")
-		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.blue, "butler")
-		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color(181, 101, 29), "table")
-		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.green, "dishwasher")
-		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.lightGray, "pantry")
-		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.pink, "butlerLocation")
+		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.red, 2, 0)
+		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.white, 0, 0, "fridge")
+		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.cyan, 0, 1, "butler")
+		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color(181, 101, 29), 0, 2, "table")
+		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.green, 1, 0, "dishwasher")
+		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.lightGray, 1, 1, "pantry")
+		itunibo.jcc.coap.roomstate.roomModelObserverCoapClient.create(Color.pink, 1, 2, "butlerLocation")
 	}
 	
 	// Give time to launch all "agents"
-	delay(15000)
+	delay(5000)
 	
 	butlerMind = sysUtil.getActor("butlermind")
 	
-	suspendResumeGui.create(butlerMind!!)
+	commandGui.create(butlerMind!!)
 	
-	delay(5000)
+//	delay(5000)
 	
 	// PREPARE
 	
-	println(" %%%%%%% MainTestButlerMind PREPARE")
-	MsgUtil.sendMsg("prepare","prepare", butlerMind!!)
+//	println(" %%%%%%% MainTestButlerMind PREPARE")
+//	MsgUtil.sendMsg("prepare","prepare", butlerMind!!)
 	
 	// ADD FOOD
 	
@@ -58,12 +58,12 @@ fun main() = runBlocking {
 //	println(" %%%%%%% MainTestButlerMind addFood(olives)")
 //	MsgUtil.sendMsg("addFood","addFood(olives)", butlerMind!!)
 	
-	delay(60000)
+//	delay(60000)
 	
 	// CLEAR
 	
-	println(" %%%%%%% MainTestButlerMind CLEAR")
-	MsgUtil.sendMsg("clear","clear", butlerMind!!)
+//	println(" %%%%%%% MainTestButlerMind CLEAR")
+//	MsgUtil.sendMsg("clear","clear", butlerMind!!)
 	
 	// TODO CREATE COMMAND CONSOLE (and simulate consumption)
 	
@@ -89,5 +89,5 @@ fun main() = runBlocking {
 	
 	// TODO Test obstacle
 	
-	delay(600 * 1000)
+//	delay(600 * 1000)
 }

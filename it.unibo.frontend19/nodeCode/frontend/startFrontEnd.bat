@@ -4,4 +4,4 @@
 @rem
 @rem #########################################
 
-node frontendServer.js
+node frontendServer.js localhost

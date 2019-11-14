@@ -16,13 +16,13 @@ import itunibo.outgui.Utils
 import java.awt.BorderLayout
 
 
-class roomModelObserverCoapClient(color: Color, subresource: String) : CoapHandler {
+class roomModelObserverCoapClient(color: Color, row: Int, col: Int, subresource: String) : CoapHandler {
 
 	companion object {
-		fun create(guiColor: Color, subresource: String = ""){
+		fun create(guiColor: Color, row: Int, col: Int, subresource: String = ""){
 			val client   = CoapClient( "coap://localhost:5685/roomstate/$subresource" )
 			//val relation =
-			client.observe(  roomModelObserverCoapClient(guiColor, subresource) ) 
+			client.observe(  roomModelObserverCoapClient(guiColor, row, col, subresource) ) 
 			//relation!!.proactiveCancel()   /AT THE END
 		}
 	}
@@ -31,9 +31,10 @@ class roomModelObserverCoapClient(color: Color, subresource: String) : CoapHandl
 	
 	init {
 		val frame = Utils.initFrame()
-		outDev = OutDevPanel( 19,60, color, Color.black)
+		outDev = OutDevPanel( 19, 60, color, Color.black )
 		frame.add(BorderLayout.CENTER, outDev )
 		frame.setTitle("roomstate/$subresource");
+		frame.setLocation(col * frame.getWidth(), row * frame.getHeight())
 		frame.validate()
 		//frame.add(BorderLayout.CENTER,p);
 	}

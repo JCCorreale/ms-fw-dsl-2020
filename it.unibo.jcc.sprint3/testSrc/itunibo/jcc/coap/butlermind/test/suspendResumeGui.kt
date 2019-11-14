@@ -11,7 +11,7 @@ import java.awt.FlowLayout
 import javax.swing.BoxLayout
 import javax.swing.JPanel
 
-object suspendResumeGui : ActionListener {
+object commandGui : ActionListener {
 	
 	
 	override fun actionPerformed(e: ActionEvent?) {
@@ -23,10 +23,24 @@ object suspendResumeGui : ActionListener {
 			"REACTIVATE" -> {
 				GlobalScope.launch { actor.autoMsg("reactivate", "reactivate") }
 			}
+			"PREPARE" -> {
+				GlobalScope.launch { actor.autoMsg("prepare", "prepare") }
+			}
+			"CLEAR" -> {
+				GlobalScope.launch { actor.autoMsg("clear", "clear") }
+			}
 		}
 	}
 
 	lateinit var actor: ActorBasic
+	
+	fun createButton(container: JPanel, command: String) {
+		val btn = JButton()
+		btn.text = command
+		btn.actionCommand = command
+		btn.addActionListener(this)
+		container.add(btn)
+	}
 	
 	fun create(actor: ActorBasic) {
 		
@@ -34,24 +48,19 @@ object suspendResumeGui : ActionListener {
 		
 		val frame = JFrame()
 		val panel = JPanel()
-		
-		val suspendBtn = JButton()
-		val resumeBtn = JButton()
-		suspendBtn.text = "STOP"
-		resumeBtn.text = "REACTIVATE"
-		suspendBtn.setActionCommand("STOP")
-		resumeBtn.setActionCommand("REACTIVATE")
-		
-		suspendBtn.addActionListener(this)
-		resumeBtn.addActionListener(this)
-		
 		panel.setLayout(FlowLayout())
-		panel.add(suspendBtn)
-		panel.add(resumeBtn)
+		
+		createButton(panel, "STOP")
+		createButton(panel, "REACTIVATE")
+		createButton(panel, "PREPARE")
+		createButton(panel, "CLEAR")
 		
 		frame.add(panel)
 		
 		frame.pack()
+		frame.setLocationRelativeTo(null)
+		frame.setAlwaysOnTop(true)
 		frame.setVisible(true)
+		
 	}
 }
